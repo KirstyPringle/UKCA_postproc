@@ -15,7 +15,7 @@ University of Leeds 2016
 import UKCA_lib as ukl
 import iris
 
-PRESM_A_Summary_File='/nfs/a201/earkpr/STASH_FILE/PRESM_A_Summary_File.txt'
+PRESM_A_Summary_File='PRESM_A_Summary_File.txt'
 
 #section=[]
 #item=[]
@@ -57,9 +57,8 @@ long_name='empty'
 units='empty'
 
 ##KP_Comment:   From Mohit, need to update
-mapping_file = '/nfs/a107/earkpr/DataVisualisation/Mohit/ukca_stdname_vn92_v2'
 mapping_file = 'ukca_stdname_vn92_v2'
-STASH_File_From_UMUI='/nfs/a201/earkpr/STASH_FILE/teafy.A.diags_short'
+STASH_File_From_UMUI='teafy.A.diags_short'
 
 #print mapping_file
 #print STASH_File_From_UMUI
