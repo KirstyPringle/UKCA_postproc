@@ -107,7 +107,7 @@ def join_variables(list_variables):
         print file_variable_name, '\n'
         for imon in range(12):
             print files_directory
-            name=files_directory+'2008'+ukl.months_str[imon]+'/'+file_variable_name[:4]+ukl.months_str[imon]+file_variable_name[7:]
+            name=files_directory+year+ukl.months_str[imon]+'/'+file_variable_name[:4]+ukl.months_str[imon]+file_variable_name[7:]
             print name, '\n'
             names.append(name)
         cube_list=[]
