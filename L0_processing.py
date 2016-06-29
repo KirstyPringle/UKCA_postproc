@@ -13,8 +13,8 @@ University of Leeds 2016
 """
 
 import sys
-dir_scripts='/nfs/see-fs-01_users/eejvt/svn_test/official'
-sys.path.append(dir_scripts)#Change this to the downloaded folder
+dir_scripts='/nfs/see-fs-01_users/eejvt/svn_test/official'#Change this to the downloaded folder
+sys.path.append(dir_scripts)
 import UKCA_lib as ukl
 import numpy as np
 import time
@@ -30,15 +30,13 @@ import getpass
 import multiprocessing
 os.chdir(dir_scripts)
 username=getpass.getuser()
-#iris.FUTURE.netcdf_promote = True
+iris.FUTURE.netcdf_promote = False
 import variable_dict as vd
 reload(vd)
 
 
-
-
-orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'
-
+orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
+orog_file = '/group_workspaces/jasmin2/gassp/jvergaratemprado/n96_hadgem1_qrparm.orog_new.pp'#jasmin
 #plt.interactive(0)
 #files_directory_UKCA='/nfs/a107/earkpr/DataVisualisation/UKCA/'
 files_directory_UKCA='/nfs/a201/'+username+'/UKCA_TEST_FILES/'
