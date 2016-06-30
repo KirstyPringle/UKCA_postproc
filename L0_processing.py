@@ -13,7 +13,7 @@ University of Leeds 2016
 """
 
 import sys
-dir_scripts='/nfs/see-fs-01_users/eejvt/svn_test/official'#Change this to the downloaded folder
+dir_scripts='/nfs/see-fs-01_users/eejvt/UKCA_postproc'#Change this to the downloaded folder
 sys.path.append(dir_scripts)
 import UKCA_lib as ukl
 import numpy as np
@@ -35,12 +35,12 @@ import variable_dict as vd
 reload(vd)
 
 
-orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
 orog_file = '/group_workspaces/jasmin2/gassp/jvergaratemprado/n96_hadgem1_qrparm.orog_new.pp'#jasmin
+orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
 #plt.interactive(0)
 #files_directory_UKCA='/nfs/a107/earkpr/DataVisualisation/UKCA/'
 files_directory_UKCA='/nfs/a201/'+username+'/UKCA_TEST_FILES/'
-run='tebxd/'
+run='tebxe/'
 files_directory=files_directory_UKCA+run
 pp_files=glob(files_directory+'*pp')
 date=pp_files[0][len(files_directory)+len(run)+3:-3]

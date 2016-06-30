@@ -268,6 +268,6 @@ for supersaturation in [0.1,0.2,0.5,1]:
             Rcrit=critical_diameter_per_mode[mode_name]/2.
             CCN_per_mode[mode_name]=N-ukl.lognormal_cummulative(N,Rcrit,rbar,sigma)
             CCN=CCN+CCN_per_mode[mode_name]
-    CCN.long_name='Cloud condensation nuclei at a supersaturation of %1.4f'%supersaturation
+    CCN.long_name='Cloud_condensation_nuclei_at_a_supersaturation_of_%1.4f'%supersaturation
     CCN._var_name='ccn'+str(supersaturation)
     save_cube(CCN)
