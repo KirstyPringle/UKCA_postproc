@@ -1,30 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-
-Code developed by Jesus Vergara Temprado and Kirsty Pringle
-
-eejvt@leeds.ac.uk
-K.Pringle@leeds.ac.uk
-
-Aerosol modellers group
-Institute for climate and atmospheric science (ICAS)
-University of Leeds 2016
-
-"""
-
-import numpy as np
-import iris
-import sys
-
-sys.path.append('/nfs/a107/eejvt/PYTHON_CODE')
-####sys.path.append('/nfs/see-fs-01_users/eejvt/UKCA_visualization')
-
-from glob import glob
-import matplotlib.pyplot as plt
-import iris.plot as iplt
-import iris.quickplot as qplt
-from scipy.io import netcdf
-import datetime
 import UKCA_lib as ukl
 reload(ukl)
 import netCDF4
