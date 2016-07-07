@@ -164,14 +164,6 @@ for mode_name in ims.mode_names:
     save_cube(mode_radius['rad_'+mode_name])
 
 
-total_mass_concentration={}
-keys=[key for key in mass_concentration.keys() if comp_name in key]
-for comp_name in ims.component_names:
-    keys=[key1 for key1 in keys if '_' in key1]
-    #print keys
-    cubes_to_add=[mass_concentration[key] for key in keys]
-    total_mass_concentration['tot_mc_'+comp_name]=np.sum(cubes_to_add)
-
 # factor to convert from mean Radious in the number PDF to the mean Radious in the volume/mass PDF conv_V = np.exp(3.0*np.log(sigma[imode])**2) #check this
 cubes_to_add_N2p5=[]
 r_125=1.25e-6#meters long_name='Radious for calculating PM2.5',
