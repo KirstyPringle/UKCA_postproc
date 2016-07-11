@@ -94,14 +94,13 @@ for name in vd.variable_reference_name.keys():
 mass_mixing_ratio={}
 for name in vd.variable_reference_name.keys():
     if 'mmr' in name:
-        if '_' in name:
-            if 'sol' in name or 'ins' in name:
-                #print name
-                nc_name=ukl.Obtain_name(folder,vd.variable_reference_name[name].stash_code)
-                if len(nc_name)==0:
-                    print name, 'not founded'
-                    continue
-                mass_mixing_ratio[name]=iris.load(nc_name)[0]
+        if 'sol' in name or 'ins' in name:
+            #print name
+            nc_name=ukl.Obtain_name(folder,vd.variable_reference_name[name].stash_code)
+            if len(nc_name)==0:
+                print name, 'not founded'
+                continue
+            mass_mixing_ratio[name]=iris.load(nc_name)[0]
 
 #Calculate mass concentrations from air density and mass mixing ratios
 mass_concentration={}
@@ -112,7 +111,7 @@ for name in mass_mixing_ratio.keys():
     mass_concentration[new_short_name].long_name='mass_concentration'+mass_mixing_ratio[name].long_name[13:-7]
     mass_concentration[new_short_name]._var_name=new_short_name
     save_cube(mass_concentration[new_short_name])
-
+'''
 mass_concentration_per_mode={}
 for mode_name in ims.mode_names:
     cubes_to_add=[mass_concentration[key] for key in mass_concentration.keys() if mode_name in key]
@@ -263,3 +262,4 @@ for supersaturation in [0.1,0.2,0.5,1]:
     CCN.long_name='Cloud_condensation_nuclei_at_a_supersaturation_of_%1.4f'%supersaturation
     CCN._var_name='ccn'+str(supersaturation)
     save_cube(CCN)
+'''

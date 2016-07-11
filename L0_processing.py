@@ -63,8 +63,9 @@ def from_pp_to_nc_single_var_single_ts(step_file):
                 cube.long_name=vd.variable_reference_stash[stash_code].long_name
                 print 'added long_name',cube.long_name, 'to', stash_code
                 if not isinstance(cube._var_name,str):
-                    cube._var_name=vd.variable_reference_stash[stash_code].short_name
-                    print 'added short_name as cube._var_name',cube._var_name, 'to', stash_code
+                    if not vd.variable_reference_stash[stash_code].short_name=='':
+                        cube._var_name=vd.variable_reference_stash[stash_code].short_name
+                        print 'added short_name as cube._var_name',cube._var_name, 'to', stash_code
         times=cube.coord('time').points
 
         if rotate_cube:
@@ -79,6 +80,8 @@ def from_pp_to_nc_single_var_single_ts(step_file):
 
             if cube_single_t._standard_name:
                 saving_name=folder_NETCDF+str(int(times[it]))+'_'+stash_code+'_'+cube_single_t._standard_name+'.nc'
+            elif isinstance(cube.long_name,str):
+                saving_name=folder_NETCDF+str(int(times[it]))+'_'+stash_code+'_'+cube_single_t.long_name+'.nc'
             else:
                 saving_name=folder_NETCDF+str(int(times[it]))+'_'+stash_code+'.nc'
 
@@ -127,6 +130,8 @@ def join_variables(list_variables):
         print cube_list_concatenated.standard_name
         if cube_list_concatenated.standard_name:
             saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'_'+cube_list_concatenated._standard_name+'.nc'
+        elif isinstance(cube_list_concatenated.long_name,str):
+            saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'_'+cube_list_concatenated.long_name+'.nc'
         else:
             saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'.nc'
 
