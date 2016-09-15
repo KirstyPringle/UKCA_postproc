@@ -36,7 +36,7 @@ import variable_dict as vd
 reload(vd)
 from multiprocessing import Process, Manager
 
-files_directory='/nfs/a201/eejvt/CASSIM/first_runs/SO/673/'
+files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/LARGE_DOMAIN/'
 pp_files=glob(files_directory+'umnsaa_*')
 # pp_files=[pp for pp in pp_files if not 'stash' in pp and not 'xhist' in pp]
 manager = Manager()
@@ -44,7 +44,7 @@ stashcodes=[]
 step_folders=[]
 stashcodes = manager.list()
 rotate_cube=True
-latlon0 = manager.list([-60.0,45.0])
+latlon0 = manager.list([-52.0,0.01])
 step_folders = manager.list()
 #%%
 def from_pp_to_nc_single_var_single_ts(step_file):
@@ -69,8 +69,13 @@ def from_pp_to_nc_single_var_single_ts(step_file):
         times=cube.coord('time').points
 
         if rotate_cube:
-            cube.coord('grid_latitude').points=cube.coord('grid_latitude').points+latlon0[0]
-            cube.coord('grid_longitude').points=cube.coord('grid_longitude').points+latlon0[1]+180
+            if len(cube.coord('grid_longitude').points)==len(cube.coord('grid_latitude').points):
+                lons, lats =iris.analysis.cartography.unrotate_pole(cube.coord('grid_longitude').points,cube.coord('grid_latitude').points,latlon0[1],90-latlon0[0])
+                cube.coord('grid_longitude').points=lons
+                cube.coord('grid_latitude').points=lats
+            else:
+                cube.coord('grid_latitude').points=cube.coord('grid_latitude').points+latlon0[0]
+                cube.coord('grid_longitude').points=cube.coord('grid_longitude').points+latlon0[1]+180
         for it in range(len(times)):
             cube_single_t=cube.extract(iris.Constraint(time=times[it]))
 
@@ -127,6 +132,12 @@ def join_variables(list_variables):
             continue
         #print cube_list
         cube_list_concatenated=cube_list.concatenate()[0]
+
+        if stash_code in vd.variable_reference_stash:
+            if not isinstance(cube_list_concatenated.long_name,str):
+                cube_list_concatenated.long_name=vd.variable_reference_stash[stash_code].long_name
+                print 'added long_name',cube_list_concatenated.long_name, 'to', stash_code
+
         print cube_list_concatenated.standard_name
         if cube_list_concatenated.standard_name:
             saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'_'+cube_list_concatenated._standard_name+'.nc'
