@@ -16,7 +16,7 @@ import UKCA_lib as ukl
 import iris
 
 PRESM_A_Summary_File='PRESM_A_Summary_File.txt'
-
+dir_scripts='/nfs/see-fs-01_users/eejvt/UKCA_postproc/'
 #section=[]
 #item=[]
 #stash_name=[]
@@ -56,11 +56,44 @@ short_name='empty'
 long_name='empty'
 units='empty'
 
+#NOW PRIORITY TO STASH MASTERFILE
+
+
+
+
 ##KP_Comment:   From Mohit, need to update
 mapping_file = 'ukca_stdname_vn92_v2'
+
+mapping_file_dict={'stash':[],'short_name':[],'long_name':[],'units':[]}
+
+f = open(dir_scripts+mapping_file, 'r')
+header1 = f.readline()
+
+data = []
+for line in f:
+    line = line.strip()
+    columns = line.split()
+    #print columns[0], columns[1], columns[2], columns[3]
+    stash=columns[0]
+    short_name=columns[1]
+    long_name=columns[2]
+    units=columns[3]
+    add_variable(stash,short_name,short_name,long_name,units)
+    mapping_file_dict['stash'].append(columns[0])
+    mapping_file_dict['short_name'].append(columns[1])
+    mapping_file_dict['long_name'].append(columns[2])
+    mapping_file_dict['units'].append(columns[3])
+
+
+
+
+
+
+
+
 STASH_File_From_UMUI='teafy.A.diags_short'
 
-f = open('STASHmaster_A', 'r')
+f = open(dir_scripts+'STASHmaster_A', 'r')
 for _ in range(12):
     header1 = f.readline()
 for line in f:
@@ -88,22 +121,3 @@ for line in f:
 
 
 
-mapping_file_dict={'stash':[],'short_name':[],'long_name':[],'units':[]}
-
-f = open(mapping_file, 'r')
-header1 = f.readline()
-
-data = []
-for line in f:
-    line = line.strip()
-    columns = line.split()
-    #print columns[0], columns[1], columns[2], columns[3]
-    stash=columns[0]
-    short_name=columns[1]
-    long_name=columns[2]
-    units=columns[3]
-    add_variable(stash,short_name,short_name,long_name,units)
-    mapping_file_dict['stash'].append(columns[0])
-    mapping_file_dict['short_name'].append(columns[1])
-    mapping_file_dict['long_name'].append(columns[2])
-    mapping_file_dict['units'].append(columns[3])

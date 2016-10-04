@@ -36,7 +36,7 @@ import variable_dict as vd
 reload(vd)
 from multiprocessing import Process, Manager
 
-files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/LARGE_DOMAIN/'
+files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/SECOND_DOMAIN/NOICE/'
 pp_files=glob(files_directory+'umnsaa_*')
 # pp_files=[pp for pp in pp_files if not 'stash' in pp and not 'xhist' in pp]
 manager = Manager()
@@ -70,7 +70,7 @@ def from_pp_to_nc_single_var_single_ts(step_file):
 
         if rotate_cube:
             if len(cube.coord('grid_longitude').points)==len(cube.coord('grid_latitude').points):
-                lons, lats =iris.analysis.cartography.unrotate_pole(cube.coord('grid_longitude').points,cube.coord('grid_latitude').points,latlon0[1],90-latlon0[0])
+                lons, lats =iris.analysis.cartography.unrotate_pole(cube.coord('grid_longitude').points,cube.coord('grid_latitude').points,latlon0[1],90+latlon0[0])
                 cube.coord('grid_longitude').points=lons
                 cube.coord('grid_latitude').points=lats
             else:
@@ -92,18 +92,26 @@ def from_pp_to_nc_single_var_single_ts(step_file):
 
             iris.save(cube_single_t,saving_name, netcdf_format="NETCDF4")
 jobs=[]
+
+processes=20
+print 'Number of pp_files for L0', len(pp_files)
+list_of_chunks=np.array_split(pp_files,processes)
 start=time.time()
-for step_file in pp_files:
-    p = multiprocessing.Process(target=from_pp_to_nc_single_var_single_ts, args=(step_file,))
-    print step_file,p
-    jobs.append(p)
-    p.start()
+for chunk in list_of_chunks:
+    jobs=[]
+    for step_file in chunk:
+        p = multiprocessing.Process(target=from_pp_to_nc_single_var_single_ts, args=(step_file,))
+        print step_file,p
+        jobs.append(p)
+        p.start()
+    
+    
+    
+    for job in jobs:
+        job.join()
 
-for job in jobs:
-    job.join()
+
 end=time.time()
-
-
 print stashcodes
 stashcodes=list(set(stashcodes))
 step_folders=list(set(step_folders))
