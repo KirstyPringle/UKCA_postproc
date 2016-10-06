@@ -12,8 +12,8 @@ University of Leeds 2016
 
 """
 import sys
-dir_scripts='/nfs/see-fs-01_users/eejvt/svn_test/official'
-sys.path.append(dir_scripts)#Change this to the downloaded folder
+dir_scripts='/nfs/see-fs-01_users/eejvt/CODE/UKCA_postproc/'#Change this to the downloaded folder
+sys.path.append(dir_scripts)
 import numpy as np
 import iris
 import UKCA_lib as ukl
@@ -30,7 +30,7 @@ def save_cube(cube):
     print 'saved:',cube.long_name
 
 directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
-folder=directory+'All_months'
+folder=directory+'All_time_steps/'
 saving_folder_l1=directory+'L1/'
 ukl.create_folder(saving_folder_l1)
 

@@ -13,7 +13,7 @@ University of Leeds 2016
 """
 
 import sys
-dir_scripts='/nfs/see-fs-01_users/eejvt/UKCA_postproc'#Change this to the downloaded folder
+dir_scripts='/nfs/see-fs-01_users/eejvt/CODE/UKCA_postproc'#Change this to the downloaded folder
 sys.path.append(dir_scripts)
 import UKCA_lib as ukl
 import numpy as np
@@ -31,142 +31,153 @@ import multiprocessing
 os.chdir(dir_scripts)
 username=getpass.getuser()
 iris.FUTURE.netcdf_promote = False
+iris.FUTURE.netcdf_no_unlimited =False
 import variable_dict as vd
 reload(vd)
+from multiprocessing import Process, Manager
+
 
 
 orog_file = '/group_workspaces/jasmin2/gassp/jvergaratemprado/n96_hadgem1_qrparm.orog_new.pp'#jasmin
 orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
-#plt.interactive(0)
-#files_directory_UKCA='/nfs/a107/earkpr/DataVisualisation/UKCA/'
-files_directory_UKCA='/nfs/a201/'+username+'/UKCA_TEST_FILES/'
-run='tebxe/'
-files_directory=files_directory_UKCA+run
-pp_files=glob(files_directory+'*pp')
-date=pp_files[0][len(files_directory)+len(run)+3:-3]
 
-print date
-year=date[:4]
-print pp_files
-
-
-def from_pp_to_nc_single_var(step_file):
-    print step_file
-    '''define things and create folders for nc (NETCDF) files'''
-    date=step_file[len(files_directory)+len(run)+3:-3]
-    print date
-    folder_NETCDF=files_directory+step_file[len(files_directory)+len(run)+3:-3]+'/'
-    ukl.create_folder(folder_NETCDF)
-
-    '''loading cubes from pp files and saving them in their correspondent folder'''
-    #cubes=iris.load(step_file)#long and heavy bit Time: around 15 minutes
+files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
+pp_files=glob(files_directory+'*.pp')
+# pp_files=[pp for pp in pp_files if not 'stash' in pp and not 'xhist' in pp]
+manager = Manager()
+stashcodes=[]
+step_folders=[]
+stashcodes = manager.list()
+rotate_cube=False
+latlon0 = manager.list([0.0,0.0])
+step_folders = manager.list()
+#%%
+def from_pp_to_nc_single_var_single_ts(step_file):
+    #print step_file
+    # global stashcodes
+    # global step_folders
     cubes=iris.load([orog_file,step_file])#long and heavy bit. Time: around 15 minutes
     for cube in cubes:
-       #capturing stash code from pp file
+        #capturing stash code from pp file
         stash_code=ukl.get_stash(cube)
+        #print stash_code
+        stashcodes.append(stash_code)
+        #print stashcodes
         if stash_code in vd.variable_reference_stash:
             if not isinstance(cube.long_name,str):
                 cube.long_name=vd.variable_reference_stash[stash_code].long_name
                 print 'added long_name',cube.long_name, 'to', stash_code
-            if not isinstance(cube._var_name,str):
-                cube._var_name=vd.variable_reference_stash[stash_code].short_name
-                print 'added short_name as cube._var_name',cube._var_name, 'to', stash_code
-            #if not isinstance(cube.units,str):
-                #cube.units=vd.variable_reference_stash[stash_code].units
-                #print 'added units',cube.units, 'to', stash_code
-        #check that long name exists
-        if cube.long_name:
-            saving_name=folder_NETCDF+date+'_'+stash_code+'_'+cube.long_name+'.nc'
-        elif cube._var_name:
-            saving_name=folder_NETCDF+date+'_'+stash_code+'_'+cube._var_name+'.nc'
-        else:
-            saving_name=folder_NETCDF+date+'_'+stash_code+'.nc'
+                if not isinstance(cube._var_name,str):
+                    if not vd.variable_reference_stash[stash_code].short_name=='':
+                        cube._var_name=vd.variable_reference_stash[stash_code].short_name
+                        print 'added short_name as cube._var_name',cube._var_name, 'to', stash_code
+        times=cube.coord('time').points
 
-        iris.save(cube,saving_name, netcdf_format="NETCDF4")
-        #cube=iris.load(saving_name)
+        if rotate_cube:
+            cube.coord('grid_latitude').points=cube.coord('grid_latitude').points+latlon0[0]
+            cube.coord('grid_longitude').points=cube.coord('grid_longitude').points+latlon0[1]+180
+        for it in range(len(times)):
+            cube_single_t=cube.extract(iris.Constraint(time=times[it]))
 
+            folder_NETCDF=files_directory+str(int(times[it]))+'/'
+            ukl.create_folder(folder_NETCDF)
+            step_folders.append(folder_NETCDF)
 
+            if cube_single_t._standard_name:
+                saving_name=folder_NETCDF+str(int(times[it]))+'_'+stash_code+'_'+cube_single_t._standard_name+'.nc'
+            elif isinstance(cube.long_name,str):
+                saving_name=folder_NETCDF+str(int(times[it]))+'_'+stash_code+'_'+cube_single_t.long_name+'.nc'
+            else:
+                saving_name=folder_NETCDF+str(int(times[it]))+'_'+stash_code+'.nc'
+
+            iris.save(cube_single_t,saving_name, netcdf_format="NETCDF4")
 jobs=[]
-start=time.time()
-for step_file in pp_files:
-    p = multiprocessing.Process(target=from_pp_to_nc_single_var, args=(step_file,))
-    jobs.append(p)
-    p.start()
-
-for job in jobs:
-    job.join()
-
-end=time.time()
-
-print end-start
-
-#file_variable_name='2008apr_m01s00i101_mass_fraction_of_sulfur_dioxide_expressed_as_sulfur_in_air.nc'
-def join_variables(list_variables):
-    for file_variable_name in list_variables:
-        names=[]
-        print file_variable_name, '\n'
-        for imon in range(12):
-            print files_directory
-            name=files_directory+year+ukl.months_str[imon]+'/'+file_variable_name[:4]+ukl.months_str[imon]+file_variable_name[7:]
-            print name, '\n'
-            names.append(name)
-        cube_list=[]
-        cube_list=iris.load(names)
-        try:
-            print cube_list[0].long_name
-        except:
-            jfskjsf=1
-        if 'm01s00i033' in file_variable_name:
-            print 'orography skipped'
-            continue
-        indx=0
-        if len(cube_list)>1:
-            if cube_list[0]==cube_list[1]:
-                indx=-1
-        cube_list_concatenated=cube_list[indx]
-        stash_code=ukl.get_stash(cube_list_concatenated)
-        if cube_list_concatenated.long_name:
-            saving_name=folder_all_months+'All_months_'+stash_code+'_'+cube_list_concatenated.long_name+'.nc'
-        elif cube_list_concatenated._var_name:
-            saving_name=folder_all_months+'All_months_'+stash_code+'_'+cube_list_concatenated._var_name+'.nc'
-        else:
-            saving_name=folder_all_months+'All_months_'+stash_code+'.nc'
-
-        iris.save(cube_list_concatenated,saving_name, netcdf_format="NETCDF4")
-
-        cube_annual_mean=cube_list_concatenated.collapsed(['time'],iris.analysis.MEAN)
-
-        stash_code=ukl.get_stash(cube_annual_mean)
-        if cube_annual_mean.long_name:
-            saving_name=folder_annual_mean+'Annual_mean_'+stash_code+'_'+cube_annual_mean.long_name+'.nc'
-        elif cube_annual_mean._var_name:
-            saving_name=folder_annual_mean+'Annual_mean_'+stash_code+'_'+cube_annual_mean._var_name+'.nc'
-        else:
-            saving_name=folder_annual_mean+'Annual_mean_'+stash_code+'.nc'
-        iris.save(cube_annual_mean,saving_name, netcdf_format="NETCDF4")
-
-
-folder_annual_mean=files_directory+'Annual_mean/'
-
-folder_all_months=files_directory+'All_months/'
-ukl.create_folder(folder_annual_mean)
-ukl.create_folder(folder_all_months)
-
-sample_month_folder=year+'jan/'
-print p
-list_variable_names=glob(files_directory+sample_month_folder+'*.nc')
-#cut variable names
-for i in range(len(list_variable_names)):
-    list_variable_names[i]=list_variable_names[i][len(files_directory+sample_month_folder):]
-    print list_variable_names,'\n'
-#Loop over all variables and save in annual_mean folder
 
 processes=20
-list_of_chunks=np.array_split(list_variable_names,processes)
+print 'Number of pp_files for L0', len(pp_files)
+list_of_chunks=np.array_split(pp_files,len(pp_files)/processes+1)
+start=time.time()
+for chunk in list_of_chunks:
+    jobs=[]
+    for step_file in chunk:
+        p = multiprocessing.Process(target=from_pp_to_nc_single_var_single_ts, args=(step_file,))
+        print step_file,p
+        jobs.append(p)
+        p.start()
+    for job in jobs:
+        job.join()
+
+
+end=time.time()
+print stashcodes
+stashcodes=list(set(stashcodes))
+step_folders=list(set(step_folders))
+step_folders.sort()
+print stashcodes
+
+print 'time to convert from pp to single nc:',end-start
+#%%
+#file_variable_name='2008apr_m01s00i101_mass_fraction_of_sulfur_dioxide_expressed_as_sulfur_in_air.nc'
+def join_variables(list_variables):
+    for stash_code in list_variables:
+        names=[]
+        print stash_code, '\n'
+
+        for step_folder in step_folders:
+            # print files_directory
+            #print step_folder
+            file_name=ukl.Obtain_name(step_folder,stash_code)
+            if len(file_name)>=1:names.append(file_name[0])
+        cube_list=[]
+        #print len(names)
+        #print names
+        cube_list=iris.load(names)
+        if 'm01s00i033' == stash_code:
+            print 'orography skipped'
+            continue
+        #print cube_list
+        cube_list_concatenated=cube_list.concatenate()[0]
+
+        if stash_code in vd.variable_reference_stash:
+            if not isinstance(cube_list_concatenated.long_name,str):
+                cube_list_concatenated.long_name=vd.variable_reference_stash[stash_code].long_name
+                print 'added long_name',cube_list_concatenated.long_name, 'to', stash_code
+
+        print cube_list_concatenated.standard_name
+        if cube_list_concatenated.standard_name:
+            saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'_'+cube_list_concatenated._standard_name+'.nc'
+        elif isinstance(cube_list_concatenated.long_name,str):
+            saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'_'+cube_list_concatenated.long_name+'.nc'
+        else:
+            saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'.nc'
+
+        iris.save(cube_list_concatenated,saving_name, netcdf_format="NETCDF4")
+#       This part is for calculating mean values across the whole run time
+#        cube_run_mean=cube_list_concatenated.collapsed(['time'],iris.analysis.MEAN)
+#
+#        stash_code=ukl.get_stash(cube_run_mean)
+#        if cube_run_mean.long_name:
+#            saving_name=folder_run_mean+'run_mean_'+stash_code+'_'+cube_run_mean.long_name+'.nc'
+#        elif cube_run_mean._var_name:
+#            saving_name=folder_run_mean+'run_mean_'+stash_code+'_'+cube_run_mean._var_name+'.nc'
+#        else:
+#            saving_name=folder_run_mean+'run_mean_'+stash_code+'.nc'
+#        iris.save(cube_run_mean,saving_name, netcdf_format="NETCDF4")
+
+#folder_run_mean=files_directory+'run_mean/'
+
+folder_all_time_steps=files_directory+'All_time_steps/'
+#ukl.create_folder(folder_run_mean)
+ukl.create_folder(folder_all_time_steps)
+
+processes=20
+print 'Number of variables', len(stashcodes)
+list_of_chunks=np.array_split(stashcodes,processes)
 jobs=[]
 start=time.time()
 for chunk in list_of_chunks:
     p = multiprocessing.Process(target=join_variables, args=(chunk.tolist(),))
+    print p
     jobs.append(p)
     p.start()
 

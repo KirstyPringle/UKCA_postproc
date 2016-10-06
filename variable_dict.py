@@ -63,6 +63,33 @@ STASH_File_From_UMUI='teafy.A.diags_short'
 #print mapping_file
 #print STASH_File_From_UMUI
 
+f = open('STASHmaster_A', 'r')
+for _ in range(12):
+    header1 = f.readline()
+for line in f:
+    #header1 = f.readline()
+    line=line.split('|')
+    if line[0]=='1':
+        st1=str(int(line[1]))
+        st2=str(int(line[2]))
+        st3=str(int(line[3]))
+        name=str(line[4]).replace (" ", "_").replace('/','div')
+        #if len(st1)
+        if len(st1)==1:
+            st1='0'+st1
+        if len(st2)==1:
+            st2='0'+st2
+        if len(st3)==1:
+            st3='0'+st3
+        if len(st3)==2:
+            st3='0'+st3
+        st_code='m'+st1+'s'+st2+'i'+st3
+        add_variable(st_code,'','',name,'')
+
+
+
+
+
 #%%
 
 f = open(STASH_File_From_UMUI, 'r')
