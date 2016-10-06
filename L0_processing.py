@@ -95,7 +95,7 @@ jobs=[]
 
 processes=20
 print 'Number of pp_files for L0', len(pp_files)
-list_of_chunks=np.array_split(pp_files,processes)
+list_of_chunks=np.array_split(pp_files,len(pp_files)/processes)
 start=time.time()
 for chunk in list_of_chunks:
     jobs=[]
