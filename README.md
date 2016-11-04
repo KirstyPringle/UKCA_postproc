@@ -10,7 +10,7 @@ This repository is prepared for converting output data from the Unified Model in
 Currently a version v0.2 is prepared and it is fully operational. Documentation, test, and examples will be added soon to the repository.
 
 The working squeme is the following:
--<img height='700' src='https://github.com/Numlet/UKCA_postproc/blob/master/Images/UKCA_posproc_squeme.png'/>
+-<img height='700' src='http://www.imageurl.ir/images/04941817947862852344.png'/>
 
 
 ### Authors and Contributors
