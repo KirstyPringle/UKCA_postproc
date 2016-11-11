@@ -164,6 +164,9 @@ def Obtain_name(folder,string,end=0,just_one=0):
 
 #%%
 class VariableAttributes:
+    """
+     Class = VariableAttributes
+    """
     def __init__(self,stash_code,name,short_name,long_name,units,description='None'):
         self.stash_code=stash_code
         self.name=name
@@ -291,16 +294,21 @@ class Capturing(list):
 
 
 def get_stash(cube):
-    with Capturing() as output:
-        print cube.attributes['STASH']
-    stash_code=output[0]
-    return stash_code
+   with Capturing() as output:
+       print cube.attributes['STASH']
+   stash_code=output[0]
+   return stash_code
 
 def get_stash_from_numbers(model,section,item):
-    with Capturing() as output:
-        print iris.fileformats.pp.STASH(model,section,item)
-    stash_code=output[0]
-    return stash_code
+   """
+     Gets STASH code from the individual section and item numbers.
+
+     eg converts ITEM=02, SEC=123 to STASH = 02123
+   """
+   with Capturing() as output:
+       print iris.fileformats.pp.STASH(model,section,item)
+   stash_code=output[0]
+   return stash_code
 
 
 def extract_stcodes(stcode_file):

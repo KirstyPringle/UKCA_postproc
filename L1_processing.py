@@ -11,8 +11,14 @@ Institute for climate and atmospheric science (ICAS)
 University of Leeds 2016
 
 """
+
+import UKCA_ControlFile
+from UKCA_ControlFile import *
+reload(UKCA_ControlFile)
+
+
 import sys
-dir_scripts='/nfs/see-fs-01_users/eejvt/CODE/UKCA_postproc/'#Change this to the downloaded folder
+### KP Moved to UKCA_ControlFile  dir_scripts='/nfs/see-fs-01_users/eejvt/CODE/UKCA_postproc/'#Change this to the downloaded folder
 sys.path.append(dir_scripts)
 import numpy as np
 import iris
@@ -29,9 +35,9 @@ def save_cube(cube):
     iris.save(cube,saving_name, netcdf_format="NETCDF4")
     print 'saved:',cube.long_name
 
-directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
-folder=directory+'All_time_steps/'
-saving_folder_l1=directory+'L1/'
+####files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
+folder=output_files_directory+'All_time_steps/'
+saving_folder_l1=files_directory+'L1/'
 ukl.create_folder(saving_folder_l1)
 
 #Reading necesary cubes

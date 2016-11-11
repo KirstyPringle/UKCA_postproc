@@ -12,9 +12,20 @@ University of Leeds 2016
 
 """
 
-import sys
-dir_scripts='/nfs/see-fs-01_users/eejvt/CODE/UKCA_postproc'#Change this to the downloaded folder
-sys.path.append(dir_scripts)
+# KP Moved to UCKA_ControlFile.py dir_scripts='/nfs/see-fs-01_users/earkpr/CODE/UKCA_postproc'#Change this to the downloaded folder
+
+#%%
+
+
+import UKCA_ControlFile
+from UKCA_ControlFile import *
+reload(UKCA_ControlFile)
+
+# %%
+## Done in "UKCA_ControlFile.py"
+###sys.path.append(dir_scripts)
+
+
 import UKCA_lib as ukl
 import numpy as np
 import time
@@ -25,10 +36,10 @@ import iris.plot as iplt
 import iris.quickplot as qplt
 import datetime
 from scipy.io import netcdf
-import os
 import getpass
 import multiprocessing
-os.chdir(dir_scripts)
+###import os
+###os.chdir(dir_scripts)
 username=getpass.getuser()
 iris.FUTURE.netcdf_promote = False
 iris.FUTURE.netcdf_no_unlimited =False
@@ -36,13 +47,25 @@ import variable_dict as vd
 reload(vd)
 from multiprocessing import Process, Manager
 
+#%%
 
+#########################################
+log.info('START OF LOGGING LEVEL 0 ')
+log.info('================')
+log.info('Using IRIS version =',iris.__version__)
+#########################################
 
-orog_file = '/group_workspaces/jasmin2/gassp/jvergaratemprado/n96_hadgem1_qrparm.orog_new.pp'#jasmin
-orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
+#KP Moved to UKCA_ControlFile orog_file = '/group_workspaces/jasmin2/gassp/jvergaratemprado/n96_hadgem1_qrparm.orog_new.pp'#jasmin
+#KP Moved to UKCA_ControlFile orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
 
-files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
-pp_files=glob(files_directory+'*.pp')
+#KP Moved to UKCA_ControlFile files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
+pp_files=glob(input_files_directory+'*.pp')
+
+#########################################
+log.info('pp_files = '+str(pp_files))
+log.info('================')
+#########################################
+
 # pp_files=[pp for pp in pp_files if not 'stash' in pp and not 'xhist' in pp]
 manager = Manager()
 stashcodes=[]
@@ -51,12 +74,18 @@ stashcodes = manager.list()
 rotate_cube=False
 latlon0 = manager.list([0.0,0.0])
 step_folders = manager.list()
+
 #%%
 def from_pp_to_nc_single_var_single_ts(step_file):
     #print step_file
     # global stashcodes
     # global step_folders
     cubes=iris.load([orog_file,step_file])#long and heavy bit. Time: around 15 minutes
+
+    #########################################
+    log.info("step_file="+str(step_file))
+    #########################################
+
     for cube in cubes:
         #capturing stash code from pp file
         stash_code=ukl.get_stash(cube)
@@ -73,13 +102,23 @@ def from_pp_to_nc_single_var_single_ts(step_file):
                         print 'added short_name as cube._var_name',cube._var_name, 'to', stash_code
         times=cube.coord('time').points
 
+        #########################################
+        log.info("cube.long_name= "+str(cube.long_name))
+        log.info("times= "+str(times))
+        #########################################
+
         if rotate_cube:
             cube.coord('grid_latitude').points=cube.coord('grid_latitude').points+latlon0[0]
             cube.coord('grid_longitude').points=cube.coord('grid_longitude').points+latlon0[1]+180
         for it in range(len(times)):
             cube_single_t=cube.extract(iris.Constraint(time=times[it]))
 
-            folder_NETCDF=files_directory+str(int(times[it]))+'/'
+            folder_NETCDF=output_files_directory+str(int(times[it]))+'/'
+
+            #########################################
+            log.info("folder_NETCDF= "+str(folder_NETCDF))
+            #########################################
+
             ukl.create_folder(folder_NETCDF)
             step_folders.append(folder_NETCDF)
 
@@ -124,7 +163,7 @@ def join_variables(list_variables):
         print stash_code, '\n'
 
         for step_folder in step_folders:
-            # print files_directory
+            # print input_files_directory
             #print step_folder
             file_name=ukl.Obtain_name(step_folder,stash_code)
             if len(file_name)>=1:names.append(file_name[0])
@@ -152,6 +191,11 @@ def join_variables(list_variables):
             saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'.nc'
 
         iris.save(cube_list_concatenated,saving_name, netcdf_format="NETCDF4")
+
+        #########################################
+        log.info("cube_list_concatenated="+str(cube_list_concatenated))
+        #########################################
+
 #       This part is for calculating mean values across the whole run time
 #        cube_run_mean=cube_list_concatenated.collapsed(['time'],iris.analysis.MEAN)
 #
@@ -166,9 +210,15 @@ def join_variables(list_variables):
 
 #folder_run_mean=files_directory+'run_mean/'
 
-folder_all_time_steps=files_directory+'All_time_steps/'
+folder_all_time_steps=input_files_directory+'All_time_steps/'
 #ukl.create_folder(folder_run_mean)
 ukl.create_folder(folder_all_time_steps)
+
+
+#########################################
+log.info("folder_all_time="+str(folder_all_time_steps))
+#########################################
+
 
 processes=20
 print 'Number of variables', len(stashcodes)
@@ -185,3 +235,10 @@ for job in jobs:
     job.join()
 end=time.time()
 print end-start
+
+
+
+#########################################
+log.info('End of L0_processing.py ')
+log.info('================')
+#########################################
