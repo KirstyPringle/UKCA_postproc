@@ -1,20 +1,28 @@
 # UKCA_postproc
 
-Library for post processing and plotting of .pp files outputed by the UM.
+Python library for post processing and plotting of .pp files outputed by the UM.
 
 ### Introduction.
 
-Library for post processing and plotting of .pp files outputed by the UM
+The Python library is designed to convert output data from the Unified Model (pp format) into netCDF files.  The code converts all diagnosed variables to netCDF, and also calculates additional useful diagnostics (e.g. CCN, N10).  The code works 
 
-This repository is prepared for converting output data from the Unified Model into netCDF files corresponding to post processed variables.
-Currently a version v0.2 is prepared and it is fully operational. Documentation, test, and examples will be added soon to the repository.
 
 The working squeme is the following:
 -<img height='700' src='http://www.imageurl.ir/images/04941817947862852344.png'/>
 
+#### Version
+
+The current version is version v0.2, and has code status Amber.  This means the code runs, but is still in the process of being validated and has not yet been published. Further developments will be added to the code.
+
+Documentation, test, and examples will be added soon to the repository.
+
+Please note, although we provide the code, users are responsible for checking the code output.  
+
+Please report any bugs / faults to the code owners.
+
 
 ### Authors and Contributors
-The main developers are Jesus Vergara Temprado (@Numlet) and Kirsty Pringle
+The main developers, and current code owners, are Jesus Vergara Temprado (@Numlet) and Kirsty Pringle. 
 
 
 ### Support or Contact
