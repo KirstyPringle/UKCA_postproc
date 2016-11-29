@@ -109,18 +109,66 @@ def zonal_mean_plot(cube,saving_path,name,cmap='CMRmap_r',logscale=0):
     plt.savefig(saving_path+'Zonal_mean_'+name+'.png',bbox_inches='tight')
     plt.close()
 
-def level_plot(cube,saving_path,name,level=0,color_levels=9,cmap=plt.cm.CMRmap_r,logscale=0):
+
+
+
+
+def level_plot(cube,saving_path,name='',level=0,color_levels=9,cmap=plt.cm.CMRmap_r,logscale=0,saving_format='.png'):
+
+    '''
+    This function works for 3 dimensional cubes (model_level_number, latitude, longitude)
+    
+    
+    It plots and saves a png file (by default)
+    You can use it like:
+        ukl.level_plot(cube_time_mean,saving_path)
+    
+    By default, it plots the cube at level 0 (surface_level) in linear scale and saves it in the path given. 
+    
+    you can change 'level' for plotting a different level
+    For example
+    
+    lev=22
+    ukl.level_plot(cube_time_mean,saving_path,level=lev)
+    
+    
+    Other kargs:
+    
+    'name' sets a different name in the saved file. By default it uses cube.var_name
+    'color_levels' is an integrer number for setting how many levels you want
+    'logscale' if set to true, the plot will be in logarithmic scale
+    'cmap' changes the mapping colors
+    'saving_format' can be set to something different than png to change the format of the plot
+    
+    '''
+
+    if cube.ndim!=3:
+        raise NameError('The cube has to have 3 dimensions (model_level_number, latitude, longitude) \n \
+        Currently its shape is: %s' % (cube.shape,) )
+
     if logscale:
         qplt.contourf(cube[level,],color_levels,cmap=cmap,norm=matplotlib.colors.LogNorm())
+        log_str='_log_scale'
     else:
         qplt.contourf(cube[level,],color_levels,cmap=cmap)
+        log_str=''
+
     plt.gca().coastlines()
+    if name=='':
+        name=cube.var_name
     if level==0:
-        saving_str=saving_path+'Surface_level_'+name+'.png'
+        saving_str=saving_path+'Surface_level_'+name+log_str+saving_format
     else:
-        saving_str=saving_path+'Level_%i_'%level+name+'.png'
+        saving_str=saving_path+'Level_%i_'%level+name+log_str+saving_format
     plt.savefig(saving_str,bbox_inches='tight')
     plt.close()
+
+
+
+
+
+
+
 
 def lognormal_PDF(rmean,r_list,std):
    X=(1/(r_list*np.log(std)*np.sqrt(2*np.pi)))*np.exp(-(np.log(r_list)-np.log(rmean))**2/(2*np.log(std)**2))
@@ -194,8 +242,10 @@ class ModalAttributes:
         self.mode_choice=mode_choice
         self.description=description
     def plot_mode(self,r_mean,N=1,real_PDF=False,limits=False):
-        #the PDF returned is weigthed by the step size of the radius in order to obtain a nice ilustrative plot
-        #for scientific purposes, note that the function shown is not a real PDF unless real_PDF is set to True
+        '''        
+        The PDF returned is weigthed by the step size of the radius in order to obtain a nice ilustrative plot
+        for scientific purposes, note that the function shown is not a real PDF unless real_PDF is set to True
+        '''
         rs=log_steps(-10,-4,1000)
         if self.modesol==0:
             pl_ls='-.'
