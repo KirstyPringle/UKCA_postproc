@@ -20,7 +20,7 @@ import datetime
 
 ## Key user defined settings.
 
-jobID = "tebxd"
+jobID = "tebxe"
 
 ## Key user defined paths
 
@@ -28,7 +28,8 @@ jobID = "tebxd"
 #orog_file = '/group_workspaces/jasmin2/gassp/jvergaratemprado/n96_hadgem1_qrparm.orog_new.pp'
 #jasminorog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
 
-dir_scripts='/nfs/a107/earkpr/DataVisualisation/Jesus/git_area/UKCA_postproc-master/'
+#dir_scripts='/nfs/a107/earkpr/DataVisualisation/Jesus/git_area/UKCA_postproc-master/'
+dir_scripts='/nfs/see-fs-01_users/eejvt/tests/UKCA_postproc/'
 orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'
 
 ## Automatically defined paths
@@ -61,7 +62,7 @@ sys.path.append(dir_scripts)
 if not os.path.exists(LOGFILES_Directory_Path):
         os.makedirs(LOGFILES_Directory_Path)
 
-now = datetime.datetime.now()
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 log = logging.getLogger()
 hdlr = logging.FileHandler(LOGFILES_Directory_Path+'/test_log_'+str(jobID)+'_'+str(now).replace(' ', '_')+'.log')
 

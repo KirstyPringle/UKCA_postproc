@@ -160,7 +160,7 @@ cmap=plt.cm.RdBu_r#color map
 saving_format='.jpg'#saving format
 ukl.level_plot(cube_time_mean,saving_path,name=name,level=lev,color_levels=color_levels,cmap=cmap,saving_format=saving_format)
 
-#Now in logarithmic scale. We need to set logscate=True (or anything different from 0 (False))
+#Now in logarithmic scale. We need to set logscale=True (or anything different from 0 (False))
 
 ukl.level_plot(cube_time_mean,saving_path,name=name,level=lev,cmap=cmap,logscale=True)
 
