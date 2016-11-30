@@ -52,7 +52,7 @@ from multiprocessing import Process, Manager
 #########################################
 log.info('START OF LOGGING LEVEL 0 ')
 log.info('================')
-log.info('Using IRIS version =',iris.__version__)
+log.info('Using IRIS version ='+iris.__version__)
 #########################################
 
 #KP Moved to UKCA_ControlFile orog_file = '/group_workspaces/jasmin2/gassp/jvergaratemprado/n96_hadgem1_qrparm.orog_new.pp'#jasmin
