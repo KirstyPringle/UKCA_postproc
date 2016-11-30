@@ -6,7 +6,6 @@ Created on Mon Oct 10 12:42:27 2016
 """
 
 
-##import sys
 import os
 import sys
 import getpass
@@ -64,7 +63,7 @@ if not os.path.exists(LOGFILES_Directory_Path):
 
 now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 log = logging.getLogger()
-hdlr = logging.FileHandler(LOGFILES_Directory_Path+'/test_log_'+str(jobID)+'_'+str(now).replace(' ', '_')+'.log')
+hdlr = logging.FileHandler(LOGFILES_Directory_Path+'/test_log_'+str(jobID)+'_'+sys.argv[0].split('/')[-1][:-3]+'_'+str(now).replace(' ', '_')+'.log')
 
 ##FORMAT='%(asctime)s\t%(levelname)s\t%(message)s'
 FORMAT='%(levelname)s\t%(message)s'

@@ -38,7 +38,7 @@ import datetime
 from scipy.io import netcdf
 import getpass
 import multiprocessing
-###import os
+import os
 ###os.chdir(dir_scripts)
 username=getpass.getuser()
 iris.FUTURE.netcdf_promote = False
@@ -193,7 +193,7 @@ def join_variables(list_variables):
         iris.save(cube_list_concatenated,saving_name, netcdf_format="NETCDF4")
 
         #########################################
-        log.info("cube_list_concatenated="+str(cube_list_concatenated))
+        log.info("cube_list_concatenated="+str(cube_list_concatenated.long_name))
         #########################################
 
 #       This part is for calculating mean values across the whole run time
@@ -235,6 +235,19 @@ for job in jobs:
     job.join()
 end=time.time()
 print end-start
+
+############################################
+log.info('removing single time step folders')
+###########################################
+
+
+for folder_name in step_folders:
+    print 'removing:',folder_name 
+    os.system('rm -rf %s'%folder_name)
+
+
+
+
 
 
 
