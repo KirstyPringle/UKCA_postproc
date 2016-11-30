@@ -31,13 +31,29 @@ import I_MODE_SETUP_Variables as ims
 reload(ims)
 
 def save_cube(cube):
+    """
+    Saves cube as a netCDF file.
+    """
     saving_name=saving_folder_l1+'L1_'+cube._var_name+'_'+cube.long_name+'.nc'
     iris.save(cube,saving_name, netcdf_format="NETCDF4")
     print 'saved:',cube.long_name
+    
+def print_cube_single_value(cube):
+    """
+    Prints the value of the first element of a cube.
+    Flexible to deal with different cube sizes
+    
+    This function is required as sometimes an element of the cube needs to be
+    printed out in order to force the cube to be calculated.
+    """
+    val=cube.shape
+    ind=[0 for v in val]
+    print eval("cube.data"+str(ind))
+
 
 ####files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
 folder=output_files_directory+'All_time_steps/'
-saving_folder_l1=files_directory+'L1/'
+saving_folder_l1=output_files_directory+'L1/'
 ukl.create_folder(saving_folder_l1)
 
 #Reading necesary cubes
@@ -54,14 +70,23 @@ cp=1005.46 # J/kg/K
 Rd_cp=Rd/cp
 
 temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
-print temperature.data[0,0,0,0]
+
+# Need to print a value to force the code to calculate the cube
+# Do not remove call to print_cube_single_value.
+print_cube_single_value(temperature)
+
 temperature._var_name='temperature'
 R_specific=iris.coords.AuxCoord(287.058,
                           long_name='R_specific',
                           units='J-kilogram^-1-kelvin^-1')#J/(kg·K)
 
 air_density=(air_pressure/(temperature*R_specific))
-print air_density.data[0,0,0,0]
+
+# Need to print a value to force the code to calculate the cube
+print_cube_single_value(air_density)  # Do not remove 
+
+
+#%%
 molar_mass_air=iris.coords.AuxCoord(28.991e-3,
                           long_name='Molar mass of air',
                           units='kilogram-mole^-1')#J/(kg·K)
@@ -71,12 +96,13 @@ avogadro_number=iris.coords.AuxCoord(6.022e23,
 
 particle_density_of_air=air_density/molar_mass_air*avogadro_number
 
-print particle_density_of_air.data[0,0,0,0]
+print_cube_single_value(particle_density_of_air) # Do not remove 
 
 air_density._var_name='air_density'
 air_density.long_name='Density of air'
 save_cube(air_density)
 
+#%%
 #Obtain mass mixing ratios from netcdf
 particles_mixing_ratio={}
 particles_concentration={}
@@ -93,8 +119,8 @@ for name in vd.variable_reference_name.keys():
         particles_concentration['n'+name[3:]]._var_name='n'+name[3:]
         save_cube(particles_concentration['n'+name[3:]])
 
-        #print particles_concentration.keys()
-        print particles_concentration['n'+name[3:]].data[0,0,0,0]
+        print particles_concentration.keys()
+        print_cube_single_value(particles_concentration['n'+name[3:]]) # Do not remove 
 
 
 mass_mixing_ratio={}
@@ -151,28 +177,36 @@ for mode_name in ims.mode_names:
             mode_volume_per_component['vol_'+keys_comp[0][5:]]._var_name='vol_'+keys_comp[0][5:]
             save_cube(mode_volume_per_component['vol_'+keys_comp[0][5:]])
 
+#%%
 #Calculate volume and radius of modes
 mode_radius={}
 mode_volume={}
+
 for mode_name in ims.mode_names:
     keys=[key for key in mode_volume_per_component.keys() if mode_name in key]
-    #print mode_name
+    print mode_name
 
     cubes_to_add=[mode_volume_per_component[key] for key in keys]
     mode_volume['vol_'+mode_name]=np.sum(cubes_to_add)
     mode_volume['vol_'+mode_name]._var_name='vol_'+mode_name
     mode_volume['vol_'+mode_name].long_name='Total_volume_fraction_'+mode_name
     save_cube(mode_volume['vol_'+mode_name])
+    
+    mode_radius['rad_'+mode_name]=0.5*iris.analysis.maths.exponentiate((
+        6*mode_volume['vol_'+mode_name]/particles_concentration['n_'+mode_name]
+        )/(np.pi*np.exp(4.5*(np.log(ims.modal_attributes[mode_name].sigma))))
+        ,1./3.)             
 
-    mode_radius['rad_'+mode_name]=0.5*iris.analysis.maths.exponentiate((6*mode_volume['vol_'+mode_name]/particles_concentration['n_'+mode_name])/(np.pi*np.exp(4.5*(np.log(ims.modal_attributes[mode_name].sigma)))),1./3.)
+    
     mode_radius['rad_'+mode_name]._var_name='rad_'+mode_name
     mode_radius['rad_'+mode_name].long_name='Radius_of_mode_'+mode_name
     save_cube(mode_radius['rad_'+mode_name])
 
+#%%
 
-# factor to convert from mean Radious in the number PDF to the mean Radious in the volume/mass PDF conv_V = np.exp(3.0*np.log(sigma[imode])**2) #check this
+# factor to convert from mean Radius in the number PDF to the mean Radius in the volume/mass PDF conv_V = np.exp(3.0*np.log(sigma[imode])**2) #check this
 cubes_to_add_N2p5=[]
-r_125=1.25e-6#meters long_name='Radious for calculating PM2.5',
+r_125=1.25e-6#meters long_name='Radius for calculating PM2.5',
 for mode_name in ims.mode_names:
     #print mode_name
     N=particles_concentration['n_'+mode_name]
@@ -186,7 +220,7 @@ N2p5.long_name='Particules_smaller_than_a_diameter_of_2.5_um'
 save_cube(N2p5)
 
 cubes_to_add_N10=[]
-r_5=5e-6#meters long_name='Radious for calculating N10',
+r_5=5e-6#meters long_name='Radius for calculating N10',
 for mode_name in ims.mode_names:
     #print mode_name
     N=particles_concentration['n_'+mode_name]
@@ -199,8 +233,10 @@ N10._var_name='N10'
 N10.long_name='Particules_smaller_than_a_diameter_of_10_um'
 save_cube(N10)
 
+#%%
+
 cubes_to_add_PM25=[]
-r_125=1.25e-6#meters long_name='Radious for calculating PM2.5',
+r_125=1.25e-6#meters long_name='Radius for calculating PM2.5',
 for mode_name in ims.mode_names:
     #print mode_name
     Mode_mass=mass_concentration_per_mode['mcon_'+mode_name]
@@ -215,7 +251,7 @@ PM25.long_name='Mass_of_particules_smaller_than_a_diameter_of_2.5_um'
 save_cube(PM25)
 
 cubes_to_add_PM10=[]
-r_5=5e-6#meters long_name='Radious for calculating PM10',
+r_5=5e-6#meters long_name='Radius for calculating PM10',
 for mode_name in ims.mode_names:
     #print mode_name
     Mode_mass=mass_concentration_per_mode['mcon_'+mode_name]

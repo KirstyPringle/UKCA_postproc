@@ -58,6 +58,9 @@ sys.path.append(dir_scripts)
 #  Options are: DEBUG (most info), WARNING, INFO (least info)
 #  Default is:  DEBUG
 
+if not os.path.exists(LOGFILES_Directory_Path):
+        os.makedirs(LOGFILES_Directory_Path)
+
 now = datetime.datetime.now()
 log = logging.getLogger()
 hdlr = logging.FileHandler(LOGFILES_Directory_Path+'/test_log_'+str(jobID)+'_'+str(now).replace(' ', '_')+'.log')
