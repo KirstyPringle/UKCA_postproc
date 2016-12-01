@@ -17,10 +17,10 @@ University of Leeds 2016
 #%%
 
 
-import UKCA_ControlFile
-from UKCA_ControlFile import *
-reload(UKCA_ControlFile)
-
+#import UKCA_ControlFile
+#from UKCA_ControlFile import *
+#reload(UKCA_ControlFile)
+from __main__ import *
 # %%
 ## Done in "UKCA_ControlFile.py"
 ###sys.path.append(dir_scripts)
@@ -89,6 +89,8 @@ def from_pp_to_nc_single_var_single_ts(step_file):
     for cube in cubes:
         #capturing stash code from pp file
         stash_code=ukl.get_stash(cube)
+        if not '_' in vd.variable_reference_stash[stash_code].short_name:
+            continue
         #print stash_code
         stashcodes.append(stash_code)
         #print stashcodes
@@ -189,7 +191,9 @@ def join_variables(list_variables):
             saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'_'+cube_list_concatenated.long_name+'.nc'
         else:
             saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'.nc'
-
+        
+        if jobNumber!=-1:
+            cube_list_concatenated.add_aux_coord(iris.coords.AuxCoord(jobNumber,long_name='Ensemble_member',var_name='ensamble_number'))
         iris.save(cube_list_concatenated,saving_name, netcdf_format="NETCDF4")
 
         #########################################
@@ -238,7 +242,7 @@ print end-start
 
 ############################################
 log.info('removing single time step folders')
-###########################################
+############################################
 
 
 for folder_name in step_folders:

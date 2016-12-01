@@ -12,15 +12,18 @@ import getpass
 from glob import glob
 import logging
 import datetime
+from __main__ import *
 
 #%%
 
 ########################################################
-
 ## Key user defined settings.
-
-jobID = "tebxe"
-
+if len(sys.argv)==1:
+    jobID = "tebxe"
+    jobNumber=-1
+else:
+    jobID=sys.argv[1]
+    jobNumber=sys.argv[2]
 ## Key user defined paths
 
 #dir_scripts='/nfs/a107/earkpr/DataVisualisation/Jesus/git_area/UKCA_postproc-master/'
@@ -83,6 +86,11 @@ log.info('username = '+str(username))
 log.info("jobID = "+str(jobID))
 log.info("input_files_directory = "+str(input_files_directory))
 log.info("output_files_directory = "+str(output_files_directory))
+
+
+import L0_processing
+
+
 
 ##log.flush()
 #log.removeHandler(hdlr)
