@@ -19,7 +19,10 @@ import datetime
 
 ## Key user defined settings.
 
-jobID = "tebxe"
+# model_name = "UKCA"
+model_name = "TOMCAT_GLOMAP"
+# jobID = "tebxe"
+jobID = "glo301"
 
 ## Key user defined paths
 
@@ -27,9 +30,8 @@ jobID = "tebxe"
 #orog_file = '/group_workspaces/jasmin2/gassp/jvergaratemprado/n96_hadgem1_qrparm.orog_new.pp'
 #jasminorog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
 
-#dir_scripts='/nfs/a107/earkpr/DataVisualisation/Jesus/git_area/UKCA_postproc-master/'
-dir_scripts='/nfs/see-fs-01_users/eejvt/tests/UKCA_postproc/'
-orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'
+dir_scripts='/nfs/a107/earkpr/DataVisualisation/Jesus/git_area/UKCA_postproc/'
+#dir_scripts='/nfs/see-fs-01_users/eejvt/tests/UKCA_postproc/'
 
 ## Automatically defined paths
 
@@ -37,10 +39,10 @@ username=getpass.getuser()
 LOGFILES_Directory_Path = dir_scripts+'LOGFILES/'
 
 ## Location of the Level 0 (raw data files)
-input_files_directory='/nfs/a201/'+str(username)+'/UKCA_TEST_FILES/'+str(jobID)+'/'
+input_files_directory='/nfs/a201/'+str(username)+'/'+str(model_name)+'_TEST_FILES/'+str(jobID)+'/'
 
 ## Location of where to write Level 1 (processed data files)
-output_files_directory='/nfs/a201/'+str(username)+'/UKCA_TEST_FILES/'+str(jobID)+'/'
+output_files_directory='/nfs/a201/'+str(username)+'/'+str(model_name)+'_TEST_FILES/'+str(jobID)+'/'
 
 
 ##  Set path to look in dir_scripts for Python routines
@@ -53,6 +55,11 @@ sys.path.append(dir_scripts)
 
 
 ################################################
+
+# For UKCA runs, need to also define an orography file.
+if model_name is "UKCA":
+    orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'
+
 
 #  Setup the level of logging information required
 #  Options are: DEBUG (most info), WARNING, INFO (least info)
