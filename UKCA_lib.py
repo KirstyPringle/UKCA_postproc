@@ -391,3 +391,15 @@ def extract_stcodes(stcode_file):
      print stcodes
    return stcodes
 # End def extract_stcodes
+
+def unrotated_grid(cube):
+    rotated_cube=isinstance(cube.coord('grid_longitude').coord_system,iris.coord_systems.RotatedGeogCS)
+    if rotated_cube:
+        pole_lat=cube.coord('grid_longitude').coord_system.grid_north_pole_latitude
+        pole_lon=cube.coord('grid_longitude').coord_system.grid_north_pole_longitude
+        lons, lats =iris.analysis.cartography.unrotate_pole(cube.coord('grid_longitude').points,cube.coord('grid_latitude').points,pole_lon,pole_lat)
+    else:
+        lons=cube.coord('grid_longitude').points
+        lats=cube.coord('grid_latitude').points
+    return lons,lats
+
