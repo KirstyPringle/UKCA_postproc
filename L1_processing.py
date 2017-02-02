@@ -174,8 +174,8 @@ save_cube(IWP)
 
 
 #CLOUD TOP TEMPERATURE   
-cube_l = iris.load(ukl.Obtain_name(path+'/All_time_steps/','m01s00i254'))[0]
-cube_i = iris.load(ukl.Obtain_name(path+'/All_time_steps/','m01s00i012'))[0]
+cube_l = iris.load(ukl.Obtain_name(folder,'m01s00i254'))[0]
+cube_i = iris.load(ukl.Obtain_name(folder,'m01s00i012'))[0]
 cloud_mass=cube_l.data[:,:,:,:]+cube_i.data[:,:,:,:]
 cloud_mass[cloud_mass<1e-6]=0
 temp_cloud=temperature.copy()
