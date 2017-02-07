@@ -43,7 +43,9 @@ iris.FUTURE.netcdf_promote = True
 #files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_INITIAL_ICE/3_ORD_LESS/'
 #files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/OLD_MICRO/'
 #files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/TRY2/LARGE_DOMAIN/'
-files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/CLOUD_SQUEME/BASE/'
+#files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/CLOUD_SQUEME/BASE/'
+#files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/CLOUD_SQUEME/MEYERS/'
+files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_CLOUD_SQUEME/MEYERS/'
 #pp_files=glob(files_directory+'*.pp')
 pp_files=glob(files_directory+'umnsaa_p*')
 # pp_files=[pp for pp in pp_files if not 'stash' in pp and not 'xhist' in pp]
@@ -113,6 +115,7 @@ def from_pp_to_nc_single_var_single_ts(step_file):
                 print '--------------------------------------'
                 print '--------------------------------------'
                 print times[it],step_file[len(files_directory):]
+		print cube.var_name,cube.long_name
                 print '--------------------------------------'
                 print '--------------------------------------'
                 print '--------------------------------------'

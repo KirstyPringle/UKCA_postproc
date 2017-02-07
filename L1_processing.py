@@ -42,6 +42,7 @@ directory='/nfs/a201/eejvt/CASIM/SO_KALLI/TRY2/ALL_ICE_PROC/'
 #folder=directory+'All_time_steps/'
 #directory='/nfs/a201/eejvt/CASIM/SO_KALLI/TRY2/2_ORD_MORE/'
 #directory='/nfs/a201/eejvt/CASIM/SO_KALLI/CLOUD_SQUEME/BASE/'
+directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_CLOUD_SQUEME/MEYERS/'
 folder=directory+'All_time_steps/'
 saving_folder_l1=directory+'L1/'
 ukl.create_folder(saving_folder_l1)
