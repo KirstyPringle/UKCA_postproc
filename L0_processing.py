@@ -221,6 +221,12 @@ for job in jobs:
     job.join()
 end=time.time()
 print end-start
+
+for folder_name in step_folders:
+    print 'removing:',folder_name 
+    os.system('rm -rf %s'%folder_name)
+
+
 jl.send_email()
 #%%
 #
