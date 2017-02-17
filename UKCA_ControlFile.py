@@ -29,11 +29,10 @@ model_name = "UKCA"
 jobID = "tebxe"
 #jobID = "glo301"
 
-run_L0=False
+run_L0=True
 run_L1=True
-run_L1=False
 run_plots=True
-run_plots=False
+
 
 
 ## Key user defined paths
@@ -110,8 +109,8 @@ if run_L0:
         execfile("L0_processing")
 if run_L1:
     execfile("L1_processing.py")
-    if run_plots:
-        execfile("Plots_for_netCDF4")
+if run_plots:
+    execfile("Plots_for_netCDF4")
         
 
 
