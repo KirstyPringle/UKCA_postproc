@@ -9,12 +9,15 @@ import variable_dict_TOMCAT as vdTOMCAT
 from glob import glob
 import time
 import multiprocessing
+from __main import *
 
 #replace by input_files_directory
-files_directory='/nfs/a105/eerjp/TOMCAT/data_2012_2015/'
-files_directory='/nfs/a201/earhg/CLOUD/GLOMAP-nc/tests-Jan2/'
+# files_directory='/nfs/a105/eerjp/TOMCAT/data_2012_2015/'
+# files_directory='/nfs/a201/earhg/CLOUD/GLOMAP-nc/tests-Jan2/'
+
+files_directory=input_files_directory
 #replace by output_files_directory
-path_out='/nfs/a201/earhg/CLOUD/GLOMAP-nc/Richard-2013/'
+# path_out='/nfs/a201/earhg/CLOUD/GLOMAP-nc/Richard-2013/'
 path_out=files_directory
 nc_files=glob(files_directory+'glo301_t042_2006*nc')
 nc_diag_files = glob(files_directory+'glo301_diag_t042_2006*nc')
@@ -27,9 +30,9 @@ print bigcubelist
 #in my data, Aerosol104, Aerosol110, and Aerosol114-117 are all zeroes
 # So Aerosol092 is nucleation N, 093 is nucleation SU, 094 is nucleation OC
 # 095 is Aitken N, 096 Aitken SU, 97 Aitken BC, 98 Aitken OC
-# 99 Acc N, 100-103 SU,BC,OC,SS 
+# 99 Acc N, 100-103 SU,BC,OC,SS
 # 104 Acc DU which is zero
-# 105 cor nd, 106-109 su,ss,bc,oc; 
+# 105 cor nd, 106-109 su,ss,bc,oc;
 # 110 cor-sol dust, zero
 # 111 Ait-ins ND, 112-113 Ait-ins BC/OC
 # 114/115 and 116/117 Acc-ins and cor-ins dust nd/md
@@ -39,7 +42,7 @@ cubes_to_load = vdTOMCAT.TOMCAT_TO_STASH.keys()
 print cubes_to_load
 
 # for one variable from the model, concatenate cubes by time and calculate monthly average. This code for monthly
-# averages is slow but should soon not be needed (Richard Pope's output doesn't seem to have the averages, but the 
+# averages is slow but should soon not be needed (Richard Pope's output doesn't seem to have the averages, but the
 # model does produce them.
 def aggregate_cubes(cubelistToAggregate, variable_dict, out_base,mmflag):
     # give it the TOMCAT name if cannot match to a name in the UKCA dictionary
@@ -122,11 +125,10 @@ def read_cubes(nc_files, variable_dict,path_out,out_base, mmflag):
 
     for job in jobs:
         job.join()
-        
+
     end=time.time()
     print end-start
 
 # The last argument specifies whether or not the input netcdfs are monthly means
 read_cubes(nc_files, vdTOMCAT.TOMCAT_TO_STASH,path_out,'monthmean_2013_testsJan2_',1)
 #read_cubes(nc_diag_files, vdTOMCAT.TOMCAT_TO_STASH,path_out,'monthmean_2013_testsJan2diag_',0)
-

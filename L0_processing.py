@@ -17,14 +17,18 @@ University of Leeds 2016
 #%%
 
 
-import UKCA_ControlFile
-from UKCA_ControlFile import *
-reload(UKCA_ControlFile)
+#import UKCA_ControlFile
+#from UKCA_ControlFile import *
+#reload(UKCA_ControlFile)
+
+from __main__ import *
+
 
 # %%
 ## Done in "UKCA_ControlFile.py"
 ###sys.path.append(dir_scripts)
-
+import sys
+sys.path.append(dir_scripts)
 
 import UKCA_lib as ukl
 import numpy as np
@@ -95,11 +99,11 @@ def from_pp_to_nc_single_var_single_ts(step_file):
         if stash_code in vd.variable_reference_stash:
             if not isinstance(cube.long_name,str):
                 cube.long_name=vd.variable_reference_stash[stash_code].long_name
-                print 'added long_name',cube.long_name, 'to', stash_code
+                # print 'added long_name',cube.long_name, 'to', stash_code
                 if not isinstance(cube._var_name,str):
                     if not vd.variable_reference_stash[stash_code].short_name=='':
                         cube._var_name=vd.variable_reference_stash[stash_code].short_name
-                        print 'added short_name as cube._var_name',cube._var_name, 'to', stash_code
+                        # print 'added short_name as cube._var_name',cube._var_name, 'to', stash_code
         times=cube.coord('time').points
 
         #########################################
@@ -180,9 +184,9 @@ def join_variables(list_variables):
         if stash_code in vd.variable_reference_stash:
             if not isinstance(cube_list_concatenated.long_name,str):
                 cube_list_concatenated.long_name=vd.variable_reference_stash[stash_code].long_name
-                print 'added long_name',cube_list_concatenated.long_name, 'to', stash_code
+                # print 'added long_name',cube_list_concatenated.long_name, 'to', stash_code
 
-        print cube_list_concatenated.standard_name
+        # print cube_list_concatenated.standard_name
         if cube_list_concatenated.standard_name:
             saving_name=folder_all_time_steps+'All_time_steps_'+stash_code+'_'+cube_list_concatenated._standard_name+'.nc'
         elif isinstance(cube_list_concatenated.long_name,str):
@@ -242,7 +246,7 @@ log.info('removing single time step folders')
 
 
 for folder_name in step_folders:
-    print 'removing:',folder_name 
+    print 'removing:',folder_name
     os.system('rm -rf %s'%folder_name)
 
 

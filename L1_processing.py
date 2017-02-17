@@ -11,15 +11,16 @@ Institute for climate and atmospheric science (ICAS)
 University of Leeds 2016
 
 """
+#
+# import UKCA_ControlFile
+# from UKCA_ControlFile import *
+# reload(UKCA_ControlFile)
+from __main__ import *
 
-import UKCA_ControlFile
-from UKCA_ControlFile import *
-reload(UKCA_ControlFile)
 
-
-import sys
+# import sys
 ### KP Moved to UKCA_ControlFile  dir_scripts='/nfs/see-fs-01_users/eejvt/CODE/UKCA_postproc/'#Change this to the downloaded folder
-sys.path.append(dir_scripts)
+# sys.path.append(dir_scripts)
 import numpy as np
 import iris
 import UKCA_lib as ukl
@@ -30,6 +31,9 @@ reload(vd)
 import I_MODE_SETUP_Variables as ims
 reload(ims)
 
+
+
+print 'Starting L1 processing'
 def save_cube(cube):
     """
     Saves cube as a netCDF file.
@@ -37,29 +41,19 @@ def save_cube(cube):
     saving_name=saving_folder_l1+'L1_'+cube._var_name+'_'+cube.long_name+'.nc'
     iris.save(cube,saving_name, netcdf_format="NETCDF4")
     print 'saved:',cube.long_name
-    
-def print_cube_single_value(cube):
-    """
-    Prints the value of the first element of a cube.
-    Flexible to deal with different cube sizes
-    
-    This function is required as sometimes an element of the cube needs to be
-    printed out in order to force the cube to be calculated.
-    """
-    val=cube.shape
-    ind=[0 for v in val]
-    print eval("cube.data"+str(ind))
+
+
 
 
 ####files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
 folder=output_files_directory+'All_time_steps/'
 saving_folder_l1=output_files_directory+'L1/'
 ukl.create_folder(saving_folder_l1)
-
+print folder
 #Reading necesary cubes
 potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
 air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
-
+print 'potential temperature and air_pressure loaded'
 p0 = iris.coords.AuxCoord(1000.0,
                           long_name='reference_pressure',
                           units='hPa')
@@ -68,12 +62,21 @@ p0.convert_units(air_pressure.units)
 Rd=287.05 # J/kg/K
 cp=1005.46 # J/kg/K
 Rd_cp=Rd/cp
-
+print 'constants defined'
 temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
+# temperature=potential_temperature.data*(air_pressure.data/1000)**(Rd_cp)
 
+print 'temperature calculated'
+
+temperature._var_name='temperature'
+temperature.long_name='Temperature'
 # Need to print a value to force the code to calculate the cube
-# Do not remove call to print_cube_single_value.
-print_cube_single_value(temperature)
+# Do not remove call to ukl.print_cube_single_value.
+
+ukl.print_cube_single_value(temperature)
+save_cube(temperature)
+
+
 
 temperature._var_name='temperature'
 R_specific=iris.coords.AuxCoord(287.058,
@@ -83,7 +86,7 @@ R_specific=iris.coords.AuxCoord(287.058,
 air_density=(air_pressure/(temperature*R_specific))
 
 # Need to print a value to force the code to calculate the cube
-print_cube_single_value(air_density)  # Do not remove 
+ukl.print_cube_single_value(air_density)  # Do not remove
 
 
 #%%
@@ -96,7 +99,7 @@ avogadro_number=iris.coords.AuxCoord(6.022e23,
 
 particle_density_of_air=air_density/molar_mass_air*avogadro_number
 
-print_cube_single_value(particle_density_of_air) # Do not remove 
+ukl.print_cube_single_value(particle_density_of_air) # Do not remove
 
 air_density._var_name='air_density'
 air_density.long_name='Density of air'
@@ -120,7 +123,7 @@ for name in vd.variable_reference_name.keys():
         save_cube(particles_concentration['n'+name[3:]])
 
         print particles_concentration.keys()
-        print_cube_single_value(particles_concentration['n'+name[3:]]) # Do not remove 
+        ukl.print_cube_single_value(particles_concentration['n'+name[3:]]) # Do not remove
 
 
 mass_mixing_ratio={}
@@ -170,7 +173,7 @@ for mode_name in ims.mode_names:
     #print keys
     for comp_name in ims.component_names:
         keys_comp=[key for key in keys if comp_name in key]
-        if any(keys_comp):
+        if len(keys_comp):
             mode_volume_per_component['vol_'+keys_comp[0][5:]]= \
             mass_concentration[keys_comp[0]]/ims.species_attributes[comp_name].rhocomp
             mode_volume_per_component['vol_'+keys_comp[0][5:]].long_name='Volume_fraction'+mass_concentration[keys_comp[0]].long_name[18:]
@@ -191,13 +194,13 @@ for mode_name in ims.mode_names:
     mode_volume['vol_'+mode_name]._var_name='vol_'+mode_name
     mode_volume['vol_'+mode_name].long_name='Total_volume_fraction_'+mode_name
     save_cube(mode_volume['vol_'+mode_name])
-    
+
     mode_radius['rad_'+mode_name]=0.5*iris.analysis.maths.exponentiate((
         6*mode_volume['vol_'+mode_name]/particles_concentration['n_'+mode_name]
         )/(np.pi*np.exp(4.5*(np.log(ims.modal_attributes[mode_name].sigma))))
-        ,1./3.)             
+        ,1./3.)
 
-    
+
     mode_radius['rad_'+mode_name]._var_name='rad_'+mode_name
     mode_radius['rad_'+mode_name].long_name='Radius_of_mode_'+mode_name
     save_cube(mode_radius['rad_'+mode_name])

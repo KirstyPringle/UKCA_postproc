@@ -105,10 +105,26 @@ def zonal_mean_plot(cube,saving_path,name,cmap='CMRmap_r',logscale=0):
         qplt.contourf(cube_zonal_mean,cmap=cmap,norm=matplotlib.colors.LogNorm())
     else:
         qplt.contourf(cube_zonal_mean,cmap=cmap)
+    # data=cube_zonal_mean.data
+    #
+    # title=cube.var_name+' max:%1.2f mean:%1.2f min:%1.2f'%(data.max(),data.mean(),data.min())
+    # plt.title(title)
     plt.yscale('log')
     plt.savefig(saving_path+'Zonal_mean_'+name+'.png',bbox_inches='tight')
     plt.close()
 
+
+def print_cube_single_value(cube):
+    """
+    Prints the value of the first element of a cube.
+    Flexible to deal with different cube sizes
+
+    This function is required as sometimes an element of the cube needs to be
+    printed out in order to force the cube to be calculated.
+    """
+    val=cube.shape
+    ind=[0 for v in val]
+    print eval("cube.data"+str(ind))
 
 
 
@@ -117,29 +133,29 @@ def level_plot(cube,saving_path,name='',level=0,color_levels=9,cmap=plt.cm.CMRma
 
     '''
     This function works for 3 dimensional cubes (model_level_number, latitude, longitude)
-    
-    
+
+
     It plots and saves a png file (by default)
     You can use it like:
         ukl.level_plot(cube_time_mean,saving_path)
-    
-    By default, it plots the cube at level 0 (surface_level) in linear scale and saves it in the path given. 
-    
+
+    By default, it plots the cube at level 0 (surface_level) in linear scale and saves it in the path given.
+
     you can change 'level' for plotting a different level
     For example
-    
+
     lev=22
     ukl.level_plot(cube_time_mean,saving_path,level=lev)
-    
-    
+
+
     Other kargs:
-    
+
     'name' sets a different name in the saved file. By default it uses cube.var_name
     'color_levels' is an integrer number for setting how many levels you want
     'logscale' if set to true, the plot will be in logarithmic scale
     'cmap' changes the mapping colors
     'saving_format' can be set to something different than png to change the format of the plot
-    
+
     '''
 
     if cube.ndim!=3:
@@ -242,7 +258,7 @@ class ModalAttributes:
         self.mode_choice=mode_choice
         self.description=description
     def plot_mode(self,r_mean,N=1,real_PDF=False,limits=False):
-        '''        
+        '''
         The PDF returned is weigthed by the step size of the radius in order to obtain a nice ilustrative plot
         for scientific purposes, note that the function shown is not a real PDF unless real_PDF is set to True
         '''
@@ -402,4 +418,3 @@ def unrotated_grid(cube):
         lons=cube.coord('grid_longitude').points
         lats=cube.coord('grid_latitude').points
     return lons,lats
-
