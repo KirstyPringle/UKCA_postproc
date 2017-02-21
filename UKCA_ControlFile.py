@@ -14,25 +14,28 @@ import logging
 import datetime
 
 #%%
+sys.path.append('/nfs/a107/eejvt/PYTHON_CODE')
+import Jesuslib as jl
 
 ########################################################
 
 ## Key user defined settings.
 
 ####IMPORTANT####
-dir_scripts='/nfs/see-fs-01_users/eejvt/UKCA_final/'
+dir_scripts='/nfs/see-fs-01_users/eejvt/CASIM_postproc/'
 # This is the directory where the code is. Change it to the path where you downloaded the file
 ####IMPORTANT####
 
 model_name = "UKCA"
+model_name = "CASIM"
 #model_name = "TOMCAT_GLOMAP"
-jobID = "tebxe"
+jobID = "casim"
 #jobID = "glo301"
 
 run_L0=True
 run_L1=True
-run_plots=True
-
+run_plots=False
+send_mail=True
 
 
 ## Key user defined paths
@@ -48,9 +51,11 @@ LOGFILES_Directory_Path = dir_scripts+'LOGFILES/'
 
 ## Location of the pp files (raw data files)
 #it can be given as:
-input_files_directory='/nfs/a201/'+str(username)+'/'+str(model_name)+'_TEST_FILES/'+str(jobID)+'/'
+# input_files_directory='/nfs/a201/'+str(username)+'/'+str(model_name)+'_TEST_FILES/'+str(jobID)+'/'
 #or just as:
-input_files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
+input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_CLOUD_SQUEME/GP_HIGH_CSED/'
+input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_CLOUD_SQUEME/GP_LOW_CSED/'
+input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/TRY2/2_ORD_LESS/'
 ## Location of where to write Level 0 (data files in nc format). Typically will be the same as input_files_directory.
 # output_files_directory='/nfs/a201/'+str(username)+'/'+str(model_name)+'_TEST_FILES/'+str(jobID)+'/'
 output_files_directory=input_files_directory
@@ -105,14 +110,21 @@ log.info("output_files_directory = "+str(output_files_directory))
 if run_L0:
     if model_name == "TOMCAT_GLOMAP":
         execfile("L0_processing_TOMCAT_GLOMAP.py")
+    elif model_name == "CASIM":
+        execfile("L0_processing_CASIM.py")
     else:
         execfile("L0_processing.py")
+
 if run_L1:
-    execfile("L1_processing.py")
+    if model_name == "CASIM":
+        execfile("L1_processing_CASIM.py")
+    else:
+        execfile("L1_processing.py")
 if run_plots:
     execfile("Plots_for_netCDF4")
         
-
+if send_mail:
+    jl.send_mail()
 
 
 ##log.flush()
