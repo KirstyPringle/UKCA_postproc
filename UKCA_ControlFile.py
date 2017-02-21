@@ -106,7 +106,7 @@ if run_L0:
     if model_name == "TOMCAT_GLOMAP":
         execfile("L0_processing_TOMCAT_GLOMAP.py")
     else:
-        execfile("L0_processing")
+        execfile("L0_processing.py")
 if run_L1:
     execfile("L1_processing.py")
 if run_plots:
