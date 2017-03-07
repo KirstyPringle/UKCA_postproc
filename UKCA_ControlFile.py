@@ -33,6 +33,7 @@ jobID = "casim"
 #jobID = "glo301"
 
 run_L0=True
+#run_L0=0
 run_L1=True
 run_plots=False
 send_mail=True
@@ -50,12 +51,20 @@ username=getpass.getuser()
 LOGFILES_Directory_Path = dir_scripts+'LOGFILES/'
 
 ## Location of the pp files (raw data files)
+#The location can be given as an argument when you call the script (ipython UKCA_ControlFile.py /nfs/a201/...../) or
 #it can be given as:
 # input_files_directory='/nfs/a201/'+str(username)+'/'+str(model_name)+'_TEST_FILES/'+str(jobID)+'/'
 #or just as:
-input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_CLOUD_SQUEME/GP_HIGH_CSED/'
-input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_CLOUD_SQUEME/GP_LOW_CSED/'
-input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/TRY2/2_ORD_LESS/'
+if len(sys.argv)>1:
+    input_files_directory=sys.argv[1]
+    if input_files_directory[-1]!='/':
+        input_files_directory=input_files_directory+'/'
+else:
+    input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_CLOUD_SQUEME/GP_HIGH_CSED/'
+    input_files_directory='/nfs/a201/eejvt/CASIM/SECOND_CLOUD/GP_HAM_DMDUST/'
+
+
+#input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/TRY2/2_ORD_LESS/'
 ## Location of where to write Level 0 (data files in nc format). Typically will be the same as input_files_directory.
 # output_files_directory='/nfs/a201/'+str(username)+'/'+str(model_name)+'_TEST_FILES/'+str(jobID)+'/'
 output_files_directory=input_files_directory
@@ -85,7 +94,7 @@ if not os.path.exists(LOGFILES_Directory_Path):
 
 now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 log = logging.getLogger()
-hdlr = logging.FileHandler(LOGFILES_Directory_Path+'/test_log_'+str(jobID)+'_'+sys.argv[0].split('/')[-1][:-3]+'_'+str(now).replace(' ', '_')+'.log')
+hdlr = logging.FileHandler(LOGFILES_Directory_Path+'/Log_'+str(jobID)+'_'+sys.argv[0].split('/')[-1][:-3]+'_'+str(now).replace(' ', '_')+'.log')
 
 ##FORMAT='%(asctime)s\t%(levelname)s\t%(message)s'
 FORMAT='%(levelname)s\t%(message)s'
@@ -121,10 +130,10 @@ if run_L1:
     else:
         execfile("L1_processing.py")
 if run_plots:
-    execfile("Plots_for_netCDF4")
+    execfile("Plots_for_netCDF4.py")
         
 if send_mail:
-    jl.send_mail()
+    jl.send_email()
 
 
 ##log.flush()
