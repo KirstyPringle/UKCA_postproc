@@ -37,8 +37,6 @@ run_L0=True
 run_L1=True
 run_plots=False
 send_mail=True
-
-
 ## Key user defined paths
 
 #dir_scripts='/nfs/a107/earkpr/DataVisualisation/Jesus/git_area/UKCA_postproc-master/'
@@ -59,9 +57,18 @@ if len(sys.argv)>1:
     input_files_directory=sys.argv[1]
     if input_files_directory[-1]!='/':
         input_files_directory=input_files_directory+'/'
+    try:
+        run_L0=int(sys.argv[2])
+        run_L1=int(sys.argv[3])
+        run_plots=int(sys.argv[4])
+        print 'run booleans writen from command line'
+        print run_L0,run_L1,run_plots
+    except:
+        asdfasdf=3452
 else:
     input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/NO_CLOUD_SQUEME/GP_HIGH_CSED/'
-    input_files_directory='/nfs/a201/eejvt/CASIM/SECOND_CLOUD/GP_HAM_DMDUST/'
+    input_files_directory='/nfs/a201/eejvt/CASIM/SECOND_CLOUD/GP_HAM_DMDUST/'    
+
 
 
 #input_files_directory='/nfs/a201/eejvt/CASIM/SO_KALLI/TRY2/2_ORD_LESS/'
