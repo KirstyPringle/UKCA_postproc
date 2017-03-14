@@ -50,48 +50,45 @@ ukl.create_folder(saving_folder_l1)
 print folder
 
 #Reading necesary cubes
-try:
-    potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
-    air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
+air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
 
-    p0 = iris.coords.AuxCoord(1000.0,
-                              long_name='reference_pressure',
-                              units='hPa')
-    p0.convert_units(air_pressure.units)
+p0 = iris.coords.AuxCoord(1000.0,
+                          long_name='reference_pressure',
+                          units='hPa')
+p0.convert_units(air_pressure.units)
 
-    Rd=287.05 # J/kg/K
-    cp=1005.46 # J/kg/K
-    Rd_cp=Rd/cp
+Rd=287.05 # J/kg/K
+cp=1005.46 # J/kg/K
+Rd_cp=Rd/cp
 
-    temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
+temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
 
 
-    print temperature.data[0,0,0,0]
-    temperature.long_name='Temperature'
-    temperature._var_name='temperature'
+print temperature.data[0,0,0,0]
+temperature.long_name='Temperature'
+temperature._var_name='temperature'
 
-    save_cube(temperature)
-    R_specific=iris.coords.AuxCoord(287.058,
-                              long_name='R_specific',
-                              units='J-kilogram^-1-kelvin^-1')#J/(kg·K)
+save_cube(temperature)
+R_specific=iris.coords.AuxCoord(287.058,
+                          long_name='R_specific',
+                          units='J-kilogram^-1-kelvin^-1')#J/(kg·K)
 
-    air_density=(air_pressure/(temperature*R_specific))
-    print air_density.data[0,0,0,0]
-    molar_mass_air=iris.coords.AuxCoord(28.991e-3,
-                              long_name='Molar mass of air',
-                              units='kilogram-mole^-1')#J/(kg·K)
-    avogadro_number=iris.coords.AuxCoord(6.022e23,
-                              long_name='Avogadros number - particles per mol',
-                              units='mole^-1')#J/(kg·K)
+air_density=(air_pressure/(temperature*R_specific))
+print air_density.data[0,0,0,0]
+molar_mass_air=iris.coords.AuxCoord(28.991e-3,
+                          long_name='Molar mass of air',
+                          units='kilogram-mole^-1')#J/(kg·K)
+avogadro_number=iris.coords.AuxCoord(6.022e23,
+                          long_name='Avogadros number - particles per mol',
+                          units='mole^-1')#J/(kg·K)
 
-    particle_density_of_air=air_density/molar_mass_air*avogadro_number
+particle_density_of_air=air_density/molar_mass_air*avogadro_number
 
-    print particle_density_of_air.data[0,0,0,0]
-    air_density._var_name='air_density'
-    air_density.long_name='Density of air'
-    save_cube(air_density)
-except:
-    temperature=iris.load(ukl.Obtain_name(folder,'m01s03i236'))[0]
+print particle_density_of_air.data[0,0,0,0]
+air_density._var_name='air_density'
+air_density.long_name='Density of air'
+save_cube(air_density)
 
 try:
     cloud_number=iris.load(ukl.Obtain_name(folder,'m01s00i075_CLOUD_NUMBER_AFTER_TIMESTEP'))[0]
