@@ -63,8 +63,8 @@ log.info('Using IRIS version ='+iris.__version__)
 #KP Moved to UKCA_ControlFile orog_file = '/nfs/a107/earkpr/ACID-PRUFF/Masaru/OAT5/teafw/ppfiles/n96_hadgem1_qrparm.orog_new.pp'#leeds foe-linux
 
 #KP Moved to UKCA_ControlFile files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
-print input_files_directory+'umnsaa_p*'
-pp_files=glob(input_files_directory+'umnsaa_p*')
+print input_files_directory+'umglaa_c*'
+pp_files=glob(input_files_directory+'umglaa_c*')
 pp_files=[file_name[:len(input_files_directory)+9] for file_name in pp_files]
 pp_files=list(set(pp_files))
 pp_files=[file_name+'*' for file_name in pp_files if not '.' in file_name[len(input_files_directory):]]
