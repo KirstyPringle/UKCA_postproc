@@ -51,7 +51,16 @@ print folder
 
 #Reading necesary cubes
 potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
-air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+try:
+    air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+    if air_pressure.shape!=potential_temperature.shape:
+        raise NameError('air pressure with different shape as potential_temperature')
+except:
+    air_pressure_nodim=iris.load(ukl.Obtain_name(folder,'m01s00i255'))[0]
+    p_convert = iris.coords.AuxCoord(100000.0,
+                              long_name='convert_units',
+                              units='Pa')
+    air_pressure=air_pressure_nodim*p_convert
 
 p0 = iris.coords.AuxCoord(1000.0,
                           long_name='reference_pressure',
@@ -112,21 +121,41 @@ except:
     
 import copy
 #m01s15i101_height_above_reference_ellipsoid.nc
-height=iris.load(ukl.Obtain_name(folder,'m01s15i101'))[0]
-base=np.zeros(height.data.shape[1:])
-length_gridbox_cube=height.copy()#copy.deepcopy(height)
-length_gridbox=np.zeros(height.data.shape)
+
+try:
+    height=iris.load(ukl.Obtain_name(folder,'m01s15i101'))[0]
+    if height.shape!=potential_temperature[0,].shape:
+        raise NameError('height does not have the same shape as potential_temperature')
+    length_gridbox_cube=height.copy()#copy.deepcopy(height)
+    height=height.data
+    print 'height readed from file'
+# ACABAR esto
+#solo hay que hacer un array de unos y multiplicar cada nivel por el hybrid height que tiene un cubo cualquiera
+#solo se usa los valores del height (heigh.data)
+except:
+    height=np.ones(potential_temperature.shape[1:])
+    height_1d=potential_temperature.coord('atmosphere_hybrid_height_coordinate').points
+    length_gridbox_cube=potential_temperature[0].copy()
+    length_gridbox_cube.units=potential_temperature.coord('atmosphere_hybrid_height_coordinate').units
+    for i in range(height.shape[0]):
+        height[i,]=height[i,]*height_1d[i]
+    print 'height calculated from potential_temperature cube'
+        
+    
+base=np.zeros(height.shape[1:])
+length_gridbox=np.zeros(height.shape)
 #length_gridbox.data=np.zeros(length_gridbox.data.shape)
 #%%
-for i in range(height.data.shape[0]):
+
+for i in range(height.shape[0]):
     if i==0:
-        length_gridbox[0,].data=height[0,].data
+        length_gridbox[0,]=height[0,]
     else:
-        length_gridbox[i,]=height[i,].data-height[i-1,].data
-        print height[i,0,0].data
-        print height[i-1,0,0].data
+        length_gridbox[i,]=height[i,]-height[i-1,]
+        print height[i,0,0]
+        print height[i-1,0,0]
         print '---'
-        print height[i,0,0].data-height[i-1,0,0].data
+        print height[i,0,0]-height[i-1,0,0]
         print '---'
 
 #%%
@@ -205,24 +234,26 @@ temp_cloud_bottom.long_name='Cloud_bottom_temperature'
 
 save_cube(temp_cloud_top)
 save_cube(temp_cloud_bottom)
+try:
+    # CDNC max cloud water   
+    CDNC_max_cloud_water=CDNC.copy()
 
-# CDNC max cloud water   
-CDNC_max_cloud_water=CDNC.copy()
+    CDNC_max_cloud_water=CDNC_max_cloud_water.collapsed(['model_level_number'],iris.analysis.MAX)
 
-CDNC_max_cloud_water=CDNC_max_cloud_water.collapsed(['model_level_number'],iris.analysis.MAX)
+    cdnc=CDNC.data
+    lw=cube_l.data
+    args=np.argmax(lw,axis=1)
+    data=np.zeros(args.shape)
+    for it in range(data.shape[0]):
+        # print it
+        for ilat in range(data.shape[1]):
+            for ilon in range(data.shape[2]):
+                data[it,ilat,ilon]=cdnc[it,args[it,ilat,ilon],ilat,ilon]
 
-cdnc=CDNC.data
-lw=cube_l.data
-args=np.argmax(lw,axis=1)
-data=np.zeros(args.shape)
-for it in range(data.shape[0]):
-    # print it
-    for ilat in range(data.shape[1]):
-        for ilon in range(data.shape[2]):
-            data[it,ilat,ilon]=cdnc[it,args[it,ilat,ilon],ilat,ilon]
+    CDNC_max_cloud_water.data=data
+    CDNC_max_cloud_water._var_name='CDNC_max_cloud_water'
+    CDNC_max_cloud_water.long_name='Cloud_droplet_concentratio_at_maximum_cloud_water_content'
 
-CDNC_max_cloud_water.data=data
-CDNC_max_cloud_water._var_name='CDNC_max_cloud_water'
-CDNC_max_cloud_water.long_name='Cloud_droplet_concentratio_at_maximum_cloud_water_content'
-
-save_cube(CDNC_max_cloud_water)
+    save_cube(CDNC_max_cloud_water)
+except:
+    print 'could not calculate CDNC'
