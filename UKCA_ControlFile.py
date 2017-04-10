@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Oct 10 12:42:27 2016
-
-@author: earkpr
+Control file for L0 and L1 processing
 """
 
 
@@ -14,9 +12,11 @@ import logging
 import datetime
 
 #%%
-sys.path.append('/nfs/a107/eejvt/PYTHON_CODE')
-import Jesuslib as jl
-
+try:
+    sys.path.append('/nfs/a107/eejvt/PYTHON_CODE')
+    import Jesuslib as jl
+except:
+    print 'Jesuslib not accesible'
 ########################################################
 
 ## Key user defined settings.
@@ -139,8 +139,8 @@ if run_L1:
 if run_plots:
     execfile("Plots_for_netCDF4.py")
         
-if send_mail:
-    jl.send_email()
+#if send_mail:
+#    jl.send_email()
 
 
 ##log.flush()
