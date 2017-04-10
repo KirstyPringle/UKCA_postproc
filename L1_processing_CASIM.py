@@ -51,28 +51,32 @@ print folder
 
 #Reading necesary cubes
 potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
-try:
-    air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
-    if air_pressure.shape!=potential_temperature.shape:
-        raise NameError('air pressure with different shape as potential_temperature')
-except:
-    air_pressure_nodim=iris.load(ukl.Obtain_name(folder,'m01s00i255'))[0]
-    p_convert = iris.coords.AuxCoord(100000.0,
-                              long_name='convert_units',
-                              units='Pa')
-    air_pressure=air_pressure_nodim*p_convert
 
 p0 = iris.coords.AuxCoord(1000.0,
                           long_name='reference_pressure',
                           units='hPa')
-p0.convert_units(air_pressure.units)
+p0.convert_units('Pa')
 
 Rd=287.05 # J/kg/K
 cp=1005.46 # J/kg/K
 Rd_cp=Rd/cp
 
-temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
 
+try:
+    air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+    if air_pressure.shape!=potential_temperature.shape:
+        raise NameError('air pressure with different shape as potential_temperature')
+    print 'm01s00i004'
+
+    temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
+
+except:
+    exeter_function=iris.load(ukl.Obtain_name(folder,'m01s00i255'))[0]
+    temperature=exeter_function*potential_temperature
+    
+    air_pressure=exeter_function**(1/Rd_cp)*p0
+    
+    
 
 print temperature.data[0,0,0,0]
 temperature.long_name='Temperature'
@@ -122,24 +126,44 @@ except:
 import copy
 #m01s15i101_height_above_reference_ellipsoid.nc
 
-try:
-    height=iris.load(ukl.Obtain_name(folder,'m01s15i101'))[0]
-    if height.shape!=potential_temperature[0,].shape:
-        raise NameError('height does not have the same shape as potential_temperature')
-    length_gridbox_cube=height.copy()#copy.deepcopy(height)
-    height=height.data
-    print 'height readed from file'
+# try:
+#     height=iris.load(ukl.Obtain_name(folder,'m01s15i101'))[0]
+#     if height.shape!=potential_temperature[0,].shape:
+#         raise NameError('height does not have the same shape as potential_temperature')
+#     length_gridbox_cube=height.copy()#copy.deepcopy(height)
+#     height=height.data
+#     print 'height readed from file'
 # ACABAR esto
 #solo hay que hacer un array de unos y multiplicar cada nivel por el hybrid height que tiene un cubo cualquiera
 #solo se usa los valores del height (heigh.data)
-except:
-    height=np.ones(potential_temperature.shape[1:])
+# except:
+height_cube=temperature.copy()
+
+height=np.ones(potential_temperature.shape[1:])
+try:
     height_1d=potential_temperature.coord('atmosphere_hybrid_height_coordinate').points
     length_gridbox_cube=potential_temperature[0].copy()
     length_gridbox_cube.units=potential_temperature.coord('atmosphere_hybrid_height_coordinate').units
-    for i in range(height.shape[0]):
-        height[i,]=height[i,]*height_1d[i]
+except:
+    h=iris.load(ukl.Obtain_name(folder,'m01s15i101'))[0]
+    length_gridbox_cube=potential_temperature[0].copy()
+    length_gridbox_cube.units=h.units
+    height_1d=h.data.mean(axis=(1,2))
+    
+for i in range(height.shape[0]):
+    height[i,]=height[i,]*height_1d[i]
+
+    height_cube_data=height_cube.data
+for i in range(height_cube.shape[0]):
+    
+    height_cube_data[i,]=height
     print 'height calculated from potential_temperature cube'
+    height_cube.data=height_cube_data
+try:
+    height_cube.units=potential_temperature.coord('atmosphere_hybrid_height_coordinate').units
+except:
+    height_cube.units=h.units
+        
         
     
 base=np.zeros(height.shape[1:])
@@ -211,13 +235,14 @@ save_cube(IWP)
 cube_l = iris.load(ukl.Obtain_name(folder,'m01s00i254'))[0]
 cube_i = iris.load(ukl.Obtain_name(folder,'m01s00i012'))[0]
 cloud_mass=cube_l.data[:,:,:,:]+cube_i.data[:,:,:,:]
-cloud_mass[cloud_mass<1e-6]=0
+cloud_mass[cloud_mass<1e-16]=0
+
 temp_cloud=temperature.copy()
 temp_cloud_data=temp_cloud.data
 temp_cloud_data[cloud_mass==0]=999
 temp_cloud.data=temp_cloud_data
 temp_cloud_top=temp_cloud.collapsed(['model_level_number'],iris.analysis.MIN)
-temp_cloud_bottom=temp_cloud.collapsed(['model_level_number'],iris.analysis.MAX)
+# temp_cloud_bottom=temp_cloud.collapsed(['model_level_number'],iris.analysis.MAX)
 
 temp_cloud_top_data=temp_cloud_top.data
 temp_cloud_top_data[temp_cloud_top_data==999]=np.nan
@@ -226,14 +251,42 @@ temp_cloud_top._var_name='CTT'
 temp_cloud_top.long_name='Cloud_top_temperature'
 
 
-temp_cloud_bottom_data=temp_cloud_bottom.data
-temp_cloud_bottom_data[temp_cloud_bottom_data==999]=np.nan
-temp_cloud_bottom.data=temp_cloud_bottom_data
-temp_cloud_bottom._var_name='CTT'
-temp_cloud_bottom.long_name='Cloud_bottom_temperature'
+# temp_cloud_bottom_data=temp_cloud_bottom.data
+# temp_cloud_bottom_data[temp_cloud_bottom_data==999]=np.nan
+# temp_cloud_bottom.data=temp_cloud_bottom_data
+# temp_cloud_bottom._var_name='CBT'
+# temp_cloud_bottom.long_name='Cloud_bottom_temperature'
 
 save_cube(temp_cloud_top)
-save_cube(temp_cloud_bottom)
+
+
+
+
+height_cloud=height_cube.copy()
+height_cloud_data=height_cloud.data
+height_cloud_data[cloud_mass==0]=0
+height_cloud.data=height_cloud_data
+height_cloud_top=height_cloud.collapsed(['model_level_number'],iris.analysis.MAX)
+# height_cloud_bottom=height_cloud.collapsed(['model_level_number'],iris.analysis.MIN)
+
+height_cloud_top_data=height_cloud_top.data
+height_cloud_top_data[height_cloud_top_data==0]=np.nan
+height_cloud_top.data=height_cloud_top_data
+height_cloud_top._var_name='CTH'
+height_cloud_top.long_name='Cloud_top_height'
+
+
+# height_cloud_bottom_data=height_cloud_bottom.data
+# height_cloud_bottom_data[height_cloud_bottom_data==999]=np.nan
+# height_cloud_bottom.data=height_cloud_bottom_data
+# height_cloud_bottom._var_name='CBT'
+# height_cloud_bottom.long_name='Cloud_bottom_height'
+
+save_cube(height_cloud_top)
+# save_cube(height_cloud_bottom)
+
+
+# save_cube(temp_cloud_bottom)
 try:
     # CDNC max cloud water   
     CDNC_max_cloud_water=CDNC.copy()
