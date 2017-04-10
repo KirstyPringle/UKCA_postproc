@@ -52,7 +52,20 @@ ukl.create_folder(saving_folder_l1)
 print folder
 #Reading necesary cubes
 potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
-air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+# air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+try:
+    air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+    if air_pressure.shape!=potential_temperature.shape:
+        raise NameError('air pressure with different shape as potential_temperature')
+except:
+    air_pressure_nodim=iris.load(ukl.Obtain_name(folder,'m01s00i255'))[0]
+    p_convert = iris.coords.AuxCoord(100000.0,
+                              long_name='convert_units',
+                              units='Pa')
+    air_pressure=air_pressure_nodim*p_convert
+
+
+
 print 'potential temperature and air_pressure loaded'
 p0 = iris.coords.AuxCoord(1000.0,
                           long_name='reference_pressure',
