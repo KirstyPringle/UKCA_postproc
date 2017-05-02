@@ -50,7 +50,7 @@ print cubes_to_load
 # for one variable from the model, concatenate cubes by time and calculate monthly average. This code for monthly
 # averages is slow but should soon not be needed (Richard Pope's output doesn't seem to have the averages, but the 
 # model does produce them.
-def aggregate_cubes(cubelistToAggregate, variable_dict, mass_for_mmr,out_base,mmflag):
+def aggregate_cubes(cubelistToAggregate, variable_dict, mass_for_mmr,diag_list,out_base,mmflag):
     # give it the TOMCAT name if cannot match to a name in the UKCA dictionary
     if mmflag==1:
         print str(cubelistToAggregate[0].long_name)[:12]
@@ -60,7 +60,7 @@ def aggregate_cubes(cubelistToAggregate, variable_dict, mass_for_mmr,out_base,mm
             getname = (str(cubelistToAggregate[0].long_name))[:-13]
     else:
         getname = (str(cubelistToAggregate[0].long_name))
-    ukca_name = variable_dict.get(getname, getname)
+    ukca_name = variable_dict.get(getname, diag_list.get(getname,getname))
     print str(ukca_name)
     newlist = cubelistToAggregate.concatenate_cube()
     iris.coord_categorisation.add_month(newlist,'time',name='month')
@@ -84,7 +84,8 @@ def aggregate_cubes(cubelistToAggregate, variable_dict, mass_for_mmr,out_base,mm
     iris.save(monthmean,path_out+out_base+str(ukca_name)+'.nc')
 
 # Read in cubes (call once for each set of netcdf files)
-def read_cubes(nc_files, variable_dict,mass_for_mmr,diag_list,path_out,out_base, mmflag, include_diagnostics):
+def read_cubes(nc_files, variable_dict,mass_for_mmr,diag_list,
+               path_out,out_base, mmflag, include_diagnostics):
     listtoload=variable_dict.keys()
     if include_diagnostics==1:
         listtoload =listtoload+diag_list.keys()
@@ -118,7 +119,8 @@ def read_cubes(nc_files, variable_dict,mass_for_mmr,diag_list,path_out,out_base,
 
     # Load cubes at subsequent times and add each variable to the list of time-dependent cubes
     # The following code relies on python loading cubes in the same order for each file
-    # I think ths is safe due to the sort method in _generate_cubes here https://github.com/SciTools/iris/blob/master/lib/iris/__init__.py
+    # I think ths is safe due to the sort method in _generate_cubes here
+    # https://github.com/SciTools/iris/blob/master/lib/iris/__init__.py
     # but check anyway
     cubeit=0
     for cubefile in nc_files[1:]:
@@ -142,7 +144,9 @@ def read_cubes(nc_files, variable_dict,mass_for_mmr,diag_list,path_out,out_base,
         print str(cubelistToAgg[0].long_name)
         cubeit=cubeit+1
         jobs=[]
-        p = multiprocessing.Process(target=aggregate_cubes, args=(cubelistToAgg,variable_dict,mass_for_mmr,out_base,mmflag,))
+        p = multiprocessing.Process(target=aggregate_cubes, 
+                                    args=(cubelistToAgg,variable_dict,mass_for_mmr,
+                                          diag_list,out_base,mmflag,))
         jobs.append(p)
         p.start()
 
@@ -154,7 +158,7 @@ def read_cubes(nc_files, variable_dict,mass_for_mmr,diag_list,path_out,out_base,
 
 # The last argument specifies whether or not the input netcdfs are monthly means. Usually set to 1.
 
-read_cubes(nc_files, vdTOMCAT.TOMCAT_TO_STASH,vdTOMCAT.mass_for_mmr,vdTOMCAT.TOMCAT_TO_STASH_DIAGS,
-           path_out,prefix_out,1, include_diagnostics)
+read_cubes(nc_files, vdTOMCAT.TOMCAT_TO_STASH,vdTOMCAT.mass_for_mmr,
+           vdTOMCAT.TOMCAT_TO_STASH_DIAGS,path_out,prefix_out,1, include_diagnostics)
 #read_cubes(nc_diag_files, vdTOMCAT.TOMCAT_TO_STASH,vdTOMCAT.mass_for_mmr,path_out,'nitrate_GLO305_7_diags_',0)
 
