@@ -63,7 +63,10 @@ TOMCAT_TO_STASH = {'Surface area of each grid cell':'m01s00i157_cellarea',
                    'Aerosol128':'m01s34i123_mmrdust_accins',
                    'Aerosol129':'m01s34i124_nbr_corins',
                    'Aerosol130':'m01s34i125_mmrdust_corins',
-                   'diagflong012':'m01s38i201_primsutoaitsol',
+                   
+                   }
+
+TOMCAT_TO_STASH_DIAGS ={'diagflong012':'m01s38i201_primsutoaitsol',
                    'diagflong013':'m01s38i202_primsutoaccsol',
                    'diagflong014':'m01s38i203_primsutocorsol',
                    'diagflong033':'m01s38i204_primsstoaccsol',
@@ -133,7 +136,7 @@ TOMCAT_TO_STASH = {'Surface area of each grid cell':'m01s00i157_cellarea',
                    'diagblong068':'m01s38i303_condocaccsol',
                    'diagblong069':'m01s38i304_condoccorsol',
                    'diagblong070':'m01s38i305_condocaitins'
-                   }
+}
                   
 mass_for_mmr = {'Surface area of each grid cell':1,
 		   'Pressure on model levels':1,
