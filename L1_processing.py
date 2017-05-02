@@ -46,7 +46,7 @@ def save_cube(cube):
 
 
 ####files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
-output_files_directory='/nfs/a201/earhg/CLOUD/GLOMAP-nc/Hamish-nitrate-8p1/'
+#output_files_directory='/nfs/a201/earhg/CLOUD/GLOMAP-nc/Hamish-nitrate-8p1/'
 if tomcat==1:
     folder=output_files_directory
 else:
