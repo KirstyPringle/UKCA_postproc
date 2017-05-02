@@ -32,7 +32,7 @@ import I_MODE_SETUP_Variables as ims
 reload(ims)
 
 
-
+tomcat=1
 print 'Starting L1 processing'
 def save_cube(cube):
     """
@@ -46,17 +46,28 @@ def save_cube(cube):
 
 
 ####files_directory='/nfs/a201/eejvt/UKCA_TEST_FILES/tebxd/'
-folder=output_files_directory+'All_time_steps/'
+output_files_directory='/nfs/a201/earhg/CLOUD/GLOMAP-nc/Hamish-nitrate-8p1/'
+if tomcat==1:
+    folder=output_files_directory
+else:
+    folder=output_files_directory+'All_time_steps/'
 saving_folder_l1=output_files_directory+'L1/'
 ukl.create_folder(saving_folder_l1)
 print folder
 #Reading necesary cubes
-potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
+if tomcat==1:
+    temperature=iris.load(ukl.Obtain_name(folder,'m01s16i004'))[0]
+else:
+    potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
 # air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
 try:
     air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
-    if air_pressure.shape!=potential_temperature.shape:
-        raise NameError('air pressure with different shape as potential_temperature')
+    if tomcat==0:
+        if air_pressure.shape!=potential_temperature.shape:
+            raise NameError('air pressure with different shape as potential_temperature')
+    else:
+        if air_pressure.shape!=temperature.shape:
+            raise NameError('air pressure with different shape as potential_temperature')
 except:
     air_pressure_nodim=iris.load(ukl.Obtain_name(folder,'m01s00i255'))[0]
     p_convert = iris.coords.AuxCoord(100000.0,
@@ -76,7 +87,8 @@ Rd=287.05 # J/kg/K
 cp=1005.46 # J/kg/K
 Rd_cp=Rd/cp
 print 'constants defined'
-temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
+if tomcat==0:
+    temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
 # temperature=potential_temperature.data*(air_pressure.data/1000)**(Rd_cp)
 
 print 'temperature calculated'
@@ -87,7 +99,8 @@ temperature.long_name='Temperature'
 # Do not remove call to ukl.print_cube_single_value.
 
 ukl.print_cube_single_value(temperature)
-save_cube(temperature)
+if tomcat==0:
+    save_cube(temperature)
 
 
 
