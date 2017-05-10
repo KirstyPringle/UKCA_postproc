@@ -22,7 +22,7 @@ Please report any bugs / faults to the code owners.
 
 
 ### Authors and Contributors
-The main developers, and current code owners, are Jesus Vergara Temprado (@Numlet) and Kirsty Pringle. 
+The main developers, and current code owners, are Jesus Vergara Temprado (@Numlet) and Kirsty Pringle (@KirstyPringle) and Hamish Gordon (@hgordo). 
 
 
 ### Support or Contact
