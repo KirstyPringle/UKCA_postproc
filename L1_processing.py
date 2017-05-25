@@ -32,7 +32,7 @@ import I_MODE_SETUP_Variables as ims
 reload(ims)
 
 
-tomcat=1
+tomcat=0
 print 'Starting L1 processing'
 def save_cube(cube):
     """
@@ -57,6 +57,7 @@ print folder
 #Reading necesary cubes
 if tomcat==1:
     temperature=iris.load(ukl.Obtain_name(folder,'m01s16i004'))[0]
+    
 else:
     potential_temperature=iris.load(ukl.Obtain_name(folder,'m01s00i004'))[0]
 # air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
@@ -90,6 +91,7 @@ print 'constants defined'
 if tomcat==0:
     temperature=potential_temperature*(air_pressure/p0)**(Rd_cp)
 # temperature=potential_temperature.data*(air_pressure.data/1000)**(Rd_cp)
+sample_cube=temperature.copy()
 
 print 'temperature calculated'
 
@@ -140,11 +142,11 @@ for name in vd.variable_reference_name.keys():
         #print name
         nc_name=ukl.Obtain_name(folder,vd.variable_reference_name[name].stash_code)
         if len(nc_name)==0:
-            print name, 'not founded'
+            print name, 'not found'
             continue
         particles_mixing_ratio[name]=iris.load(nc_name)[0]
         particles_concentration['n'+name[3:]]=particles_mixing_ratio[name]*particle_density_of_air
-        particles_concentration['n'+name[3:]].long_name=particles_mixing_ratio[name].long_name
+        particles_concentration['n'+name[3:]].long_name='number_concentration'+ particles_mixing_ratio[name].long_name[15:]
         particles_concentration['n'+name[3:]]._var_name='n'+name[3:]
         save_cube(particles_concentration['n'+name[3:]])
 
@@ -160,7 +162,7 @@ for name in vd.variable_reference_name.keys():
                 #print name
                 nc_name=ukl.Obtain_name(folder,vd.variable_reference_name[name].stash_code)
                 if len(nc_name)==0:
-                    print name, 'not founded'
+                    print name, 'not found'
                     continue
                 mass_mixing_ratio[name]=iris.load(nc_name)[0]
 
@@ -262,6 +264,16 @@ N10._var_name='N10'
 N10.long_name='Particules_smaller_than_a_diameter_of_10_um'
 save_cube(N10)
 
+
+cubes_to_add_Ntot=[]
+for mode_name in ims.mode_names:
+    #print mode_name
+    N=particles_concentration['n_'+mode_name]
+    cubes_to_add_Ntot.append(N)
+Ntot=np.sum(cubes_to_add_Ntot)
+Ntot._var_name='Ntot'
+Ntot.long_name='Total_particle_concentration'
+save_cube(Ntot)
 #%%
 
 cubes_to_add_PM25=[]
@@ -294,6 +306,17 @@ PM10._var_name='PM10'
 PM10.long_name='Mass_of_particules_smaller_than_a_diameter_of_10_um'
 save_cube(PM10)
 
+cubes_to_add_Mtot=[]
+r_5=5e-6#meters long_name='Radius for calculating PM10',
+for mode_name in ims.mode_names:
+    #print mode_name
+    Mode_mass=mass_concentration_per_mode['mcon_'+mode_name]
+    cubes_to_add_Mtot.append(Mode_mass)
+Mtot=np.sum(cubes_to_add_Mtot)
+Mtot._var_name='Mtot'
+Mtot.long_name='total_mass_concentration'
+save_cube(Mtot)
+
 
 #CCN
 
@@ -315,22 +338,29 @@ for mode_name in ims.mode_names:
             if 'vol_'+comp_name+'_'+mode_name in mode_volume_per_component.keys():
                 print 'kappa_weighted_per_mode',mode_name,comp_name
                 cubes_to_add.append(mode_volume_per_component['vol_'+comp_name+'_'+mode_name]*ims.species_attributes[comp_name].kappa/mode_volume['vol_'+mode_name])
-                kappa_weighted_per_mode[mode_name]=np.sum(cubes_to_add)
+        kappa_weighted_per_mode[mode_name]=np.sum(cubes_to_add)
 
 for supersaturation in [0.1,0.2,0.5,1]:
-    #print supersaturation
+    print 'ccn at supersaturation of:', supersaturation
     critical_diameter_per_mode={}
     CCN_per_mode={}
     CCN=0
     for mode_name in ims.mode_names:
         if ims.modal_attributes[mode_name].modesol:
-            critical_diameter_per_mode[mode_name]=(4.*A_kohler**3/(27.*kappa_weighted_per_mode[mode_name].data*np.log(1+supersaturation/100.)))**(1./3.)
+            critical_diameter_per_mode[mode_name]=(4.*A_kohler**3/(27.*kappa_weighted_per_mode[mode_name].data*np.log(1+supersaturation/100.)**2))**(1./3.)
             N=particles_concentration['n_'+mode_name]
             rbar=mode_radius['rad_'+mode_name].data
             sigma=ims.modal_attributes[mode_name].sigma
             Rcrit=critical_diameter_per_mode[mode_name]/2.
+            Dcrit_cube=sample_cube.copy()
+            Dcrit_cube.long_name='critical_diameter_with_supersaturation_of_%1.4f'%(supersaturation)
+            Dcrit_cube._var_name='Dcrit_%1.4f'%(supersaturation)
+            Dcrit_cube.units='meter'
+            Dcrit_cube.data=Rcrit*2.
+            
             CCN_per_mode[mode_name]=N-ukl.lognormal_cummulative(N,Rcrit,rbar,sigma)
             CCN=CCN+CCN_per_mode[mode_name]
+    save_cube(Dcrit_cube)
     CCN.long_name='Cloud_condensation_nuclei_at_a_supersaturation_of_%1.4f'%supersaturation
     CCN._var_name='ccn'+str(supersaturation)
     save_cube(CCN)

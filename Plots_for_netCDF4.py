@@ -36,13 +36,14 @@ import matplotlib
 import getpass
 
 
-username=getpass.getuser()
+#username=getpass.getuser()
 
 plt.interactive(0)
-files_directory='/nfs/a201/'+username+'/UKCA_TEST_FILES/tebxd/'
+#files_directory='/nfs/a201/'+username+'/UKCA_TEST_FILES/tebxd/'
 #saving_folder=files_directory+'PLOTS'
-
+files_directory=output_files_directory
 folders=[files_directory+'All_time_steps/',files_directory+'L1/']
+#folders=[files_directory+'L1/']
 
 
 
@@ -60,23 +61,35 @@ for data_folder in folders:
             if cube.ndim==2:
                 qplt.contourf(cube,cmap=plt.cm.RdBu_r)
                 plt.gca().coastlines()
+                stash=''
+                try:
+                    stash=ukl.get_stash(cube)
+                except:
+                    stash='L1'
+                    
                 if isinstance(cube.var_name,str) or isinstance(cube.var_name,unicode):
-                    name=ukl.get_stash(cube)+'_'+cube.var_name
+                    name=stash+'_'+cube.var_name
                 else:
-                    name=ukl.get_stash(cube)
+                    name=stash
                 saving_str=saving_folder+'2D_plot'+name+'.png'
                 plt.savefig(saving_str)
                 plt.close()
             if cube.ndim==3:
+                try:
+                    stash=ukl.get_stash(cube)
+                except:
+                    stash='L1'
+                    
                 if isinstance(cube.var_name,str) or isinstance(cube.var_name,unicode):
-                    name=ukl.get_stash(cube)+'_'+cube.var_name
+                    name=stash+'_'+cube.var_name
                 else:
-                    name=ukl.get_stash(cube)
+                    name=stash
                 ukl.zonal_mean_plot(cube,saving_folder,name)
                 ukl.zonal_mean_plot(cube,saving_folder,name,logscale=True)
                 ukl.level_plot(cube,saving_folder,name)
                 ukl.level_plot(cube,saving_folder,name,logscale=True)
                 ukl.level_plot(cube,saving_folder,name,logscale=True,level=22)#around 600hpa
+                ukl.level_plot(cube,saving_folder,name,logscale=False,level=22)#around 600hpa
         except:
             print cube
             print 'not managed to plot automatically. Check wether if there is any other dimension apart from [time, level, lat, lon]'

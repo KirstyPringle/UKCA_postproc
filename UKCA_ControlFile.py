@@ -26,10 +26,10 @@ dir_scripts='/nfs/see-fs-01_users/eejvt/CASIM_postproc/'
 # This is the directory where the code is. Change it to the path where you downloaded the file
 ####IMPORTANT####
 
-model_name = "UKCA"
 model_name = "CASIM"
+model_name = "UKCA"
 #model_name = "TOMCAT_GLOMAP"
-jobID = "casim"
+jobID = "whatever"
 #jobID = "glo301"
 
 run_L0=True
