@@ -225,7 +225,7 @@ for mode_name in ims.mode_names:
 
     mode_radius['rad_'+mode_name]=0.5*iris.analysis.maths.exponentiate((
         6*mode_volume['vol_'+mode_name]/particles_concentration['n_'+mode_name]
-        )/(np.pi*np.exp(4.5*(np.log(ims.modal_attributes[mode_name].sigma))))
+        )/(np.pi*np.exp(4.5*(np.log(ims.modal_attributes[mode_name].sigma))**2))
         ,1./3.)
 
 
