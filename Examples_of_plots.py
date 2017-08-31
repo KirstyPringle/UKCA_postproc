@@ -39,10 +39,12 @@ Examples of ploting routines
 '''
 
 
-#Load a cube is as simple as:
-path_to_nc_file=directory_scripts+'test_cube_PM25.nc'#setting the path to the file
+#Loading a cube is as simple as:
 
-cube=iris.load(path_to_nc_file)[0]#and loading it. We add [0] at the end, as iris.load load the cubes in a list
+#set the path to the file:
+path_to_nc_file=directory_scripts+'test_cube_PM25.nc'#Run this line in Spyder with F9 and the following.
+cube=iris.load(path_to_nc_file)[0]#and loading it. We add [0] at the end, as iris.load load the cubes in a list.
+#Alternativelly you can use iris.load_cube(path_to_nc_file) for just a single cube
 
 #Let's see how the cube looks like
 
@@ -52,7 +54,7 @@ print cube
 print cube.shape
 print cube.ndim
 
-#we can subset our cube, for example, for a single month, let's say, january
+#we can subset our cube, for example, for a single month, let's say, january (0 as in python lists indexes start in 0 not 1)
 cube_january=cube[0,:,:,:]
 
 #we can also calculate the mean through all the time period
@@ -64,15 +66,19 @@ print 'cube_time_mean shape ',cube_time_mean.shape
 
 #if we want to get the surface level:
 cube_surface=cube_time_mean[0,:,:]
+#This is specifically of the sample cube included in the repo.
+#For other formats of nc files, the surface level might be other than 0 
 
 #%%
 #lets do a quick plot of the surface
+#In spyder you can run this whole block with Control+Enter (Comand+Enter in mac)
+
 import iris.quickplot as qplt
 
 plt.figure()
 qplt.contourf(cube_surface)
-#coastlines
 
+# add coastlines
 plt.gca().coastlines()
 plt.show()
 #%%
@@ -114,10 +120,10 @@ ukl.level_plot(cube_time_mean,saving_path)
 #ukl.level_plot(cube,saving_path)
 #Now the file will be in saving_path
 print saving_path
-#go there and check it
+#go to the saving_path there and check it
 
-#If you are using Spyder, you can look at the documentation of the function
-# by setting the cursor in the name of the function 
+#If you are using Spyder, you can look at the documentation any function
+#by setting the cursor in the name of the function 
 # and pressin Control+I
 #you should see somethig like:
 
