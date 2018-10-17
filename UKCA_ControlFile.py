@@ -22,21 +22,25 @@ except:
 ## Key user defined settings.
 
 ####IMPORTANT####
-dir_scripts='/nfs/see-fs-01_users/eejvt/CASIM_postproc/'
+#dir_scripts='/nfs/see-fs-01_users/eejvt/CASIM_postproc/'
+dir_scripts='/home/users/kpringle/DataVisualisation/AerVis/UKCA_postproc/'
 # This is the directory where the code is. Change it to the path where you downloaded the file
 ####IMPORTANT####
 
+#  Which model would you like to read data from?  Options are:  UKCA, TOMCAT_GLOMAP or CASIM
 model_name = "CASIM"
 model_name = "UKCA"
 #model_name = "TOMCAT_GLOMAP"
+
 jobID = "whatever"
+jobID = "tebiz"
 #jobID = "glo301"
 
-run_L0=True
+run_L0=True                 # if true will convert raw output to Level1 nc files.
 #run_L0=0
-run_L1=True
-run_plots=False
-send_mail=True
+run_L1=True                 # if true will calculate additional output as a postprocessing step e.g. CCN 
+run_plots=False             # if true will produce a series of standard plots
+send_mail=True              # ?
 ## Key user defined paths
 
 #dir_scripts='/nfs/a107/earkpr/DataVisualisation/Jesus/git_area/UKCA_postproc-master/'
