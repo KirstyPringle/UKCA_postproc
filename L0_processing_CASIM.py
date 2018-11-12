@@ -45,8 +45,8 @@ import multiprocessing
 import os
 ###os.chdir(dir_scripts)
 username=getpass.getuser()
-iris.FUTURE.netcdf_promote = False
-iris.FUTURE.netcdf_no_unlimited =False
+#iris.FUTURE.netcdf_promote = False #DPG - removed these due to an error on Jasmin saying this was deprectated.
+#iris.FUTURE.netcdf_no_unlimited =False
 import variable_dict as vd
 reload(vd)
 from multiprocessing import Process, Manager
