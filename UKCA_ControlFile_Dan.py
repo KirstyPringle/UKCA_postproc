@@ -24,8 +24,8 @@ except:
 execfile("UKCA_Control_defaults.py")
 
 #Override the defaults using the following user script (can change the path to this if needed)
-#execfile("UKCA_Control_USER_config.py")
-execfile("UKCA_Control_USER_config_Dan.py")
+execfile("UKCA_Control_USER_config.py")
+
 
 ## Automatically defined paths
 username=getpass.getuser()
