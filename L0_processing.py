@@ -84,6 +84,7 @@ def from_pp_to_nc_single_var_single_ts(step_file):
     #print step_file
     # global stashcodes
     # global step_folders
+    ##cubes=iris.load([orog_file,step_file],['tendency_of_atmosphere_mass_content_of_sulfur_dioxide_expressed_as_sulfur_due_to_high_level_emission'])#long and heavy bit. Time: around 15 minutes
     cubes=iris.load([orog_file,step_file])#long and heavy bit. Time: around 15 minutes
 
     #########################################
@@ -115,7 +116,13 @@ def from_pp_to_nc_single_var_single_ts(step_file):
             cube.coord('grid_latitude').points=cube.coord('grid_latitude').points+latlon0[0]
             cube.coord('grid_longitude').points=cube.coord('grid_longitude').points+latlon0[1]+180
         for it in range(len(times)):
-            cube_single_t=cube.extract(iris.Constraint(time=times[it]))
+            # KP_Comment:  Extract / Constraint command failed if only 1 timestep as unbounded, added except statement below. 12/12/2018
+            try:                   
+                cube_single_t=cube.extract(iris.Constraint(time=times[it]))
+            except:
+                print("Cannot extract cube ",cube.long_name)
+                print("Dimensions ",cube.shape)
+                cube_single_t=cube
 
             folder_NETCDF=output_files_directory+str(int(times[it]))+'/'
 
@@ -137,6 +144,7 @@ def from_pp_to_nc_single_var_single_ts(step_file):
 jobs=[]
 
 processes=20
+##processes=1
 print 'Number of pp_files for L0', len(pp_files)
 list_of_chunks=np.array_split(pp_files,len(pp_files)/processes+1)
 start=time.time()
@@ -159,6 +167,8 @@ step_folders.sort()
 print stashcodes
 
 print 'time to convert from pp to single nc:',end-start
+
+
 #%%
 #file_variable_name='2008apr_m01s00i101_mass_fraction_of_sulfur_dioxide_expressed_as_sulfur_in_air.nc'
 def join_variables(list_variables):
