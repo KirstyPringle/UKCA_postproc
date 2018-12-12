@@ -54,7 +54,11 @@ for data_folder in folders:
     for nc_file in nc_files:
         #mb=netCDF4.Dataset(nc_file,'r')
         cube=iris.load(nc_file)[0]
-        cube=cube.collapsed(['time'],iris.analysis.MEAN)
+        try:                                ## KP_Comment:  Causes error with data with 1D time dimension added except statement:
+            cube=cube.collapsed(['time'],iris.analysis.MEAN)
+        except:
+            print("Cube time dimension is already collapsed")
+
         print cube.var_name
         print cube.shape
         try:
